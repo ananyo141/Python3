@@ -42,11 +42,11 @@ fpdf = module_importer('fpdf', 'fpdf2')
 from fpdf import FPDF
 requests = module_importer('requests', 'requests')
 
-# Global Variables
+# Global Variables #
 title = input('Enter title for the pdfs: ');                                   logging.warning(f'{title = }')
-header = input('Enter the header text of the files: ');                         logging.warning(f'{header = }')
+header = input('Enter the header text of the files: ');                        logging.warning(f'{header = }')
 # Ask the user to input the url of an image for logo (header)
-imgUrl = input('Enter a valid url of an image you want to use as a logo: ');    logging.critical(f'{imgUrl = }')
+imgUrl = input('Enter a valid url of an image you want to use as a logo: ')
 if not imgUrl:
     sys.exit('Image url not specified')
 try:
@@ -59,10 +59,10 @@ class PDF(FPDF):
     # Defining custom-header
     def header(self):
         self.image(image_path, 10, 8, 25) # set the logo
-        self.set_font('times', 'B', 17) # font 
+        self.set_font('times', 'BI', 16) # font 
         self.set_text_color(220, 50, 50)  # set text-color
-        self.cell(0, 10, header, ln = True, align = 'C') # position header in the center
-        self.ln(10)  # line break
+        self.cell(0, 10, header, ln = True, align = 'R') # position header in the center
+        self.ln(5)  # line break
 
     # Defining custom-footer
     def footer(self):
@@ -77,11 +77,9 @@ def main():
     textFiles = ('/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/1917.txt', '/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/American Beauty.txt', '/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/Fight Club.txt',
                  '/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/Good Will Hunting.txt', '/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/Goodfellas.txt', '/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/Inglourious Basterds.txt', '/mnt/0FBF0B0B0FBF0B0B/betaCode/textfiles/Joker.txt')
     logging.warning(f'{textFiles = }')
-    # Input the title
-    
-    
+
     # Build pdf for every text file
-    saveDir = os.path.dirname(textFiles[0]) + os.sep + 'PDFs';                      logging.warning(f'{saveDir = }')
+    saveDir = os.path.dirname(textFiles[0]) + os.sep + 'PDFs';                 logging.warning(f'{saveDir = }')
     os.makedirs(saveDir, exist_ok = True) 
     for filename in textFiles:
         pdf = PDF('P', 'mm', 'A4')
@@ -89,22 +87,23 @@ def main():
         pdf.add_page()
 
         # set title at the first page
-        pdf.set_font('helvetica', 'BIU', 20)
-        pdf.set_text_color(50, 233, 100)
-        pdf.set_fill_color(215, 32, 59)
-        pdf.cell(0, 15, title, ln = True, border = True, align = 'C')
+        pdf.set_font('helvetica', 'BU', 14)
+        pdf.set_text_color(0, 0, 102)
+        pdf.set_fill_color(102, 153, 255)
+        pdf.cell(0, 15, title, ln = True, border = True, align = 'C', fill = True)
+        pdf.ln(10)
 
         # write rest of content
         pdf.set_font('times', '', 16)
         pdf.set_title(title) # metadata
         pdf.set_author('pdfConverter-Python') # metadata
-        pdf.set_text_color(0, 0, 0) # Font color:-> black
+        pdf.set_text_color(10, 10, 10) # Font color:-> black-ish
         with open(filename, 'rb') as file:
             content = file.read().decode('latin-1')
-            pdf.multi_cell(0, 10, content, align = 'J')
-        saveName = saveDir + os.sep + os.path.basename(filename).rstrip('.txt') + '.pdf';       logging.critical(f'{saveName = }')
-        pdf.output(saveName)
-    # TODO: Styles:-> font-family, font-color, font-style, fill-color
+            pdf.multi_cell(0, 9, content, align = 'J')
+        saveName = saveDir + os.sep + os.path.basename(filename).rstrip('.txt') + '.pdf'
+        pdf.output(saveName);                                                  logging.critical(f'{saveName = }')
+
     os.unlink(image_path) # delete the temp image
 
 
