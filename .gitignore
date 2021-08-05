@@ -1,0 +1,4 @@
+# Ignore python generated binaries
+*.pyc
+*.pyo
+__pycache__/
