@@ -2,8 +2,6 @@
 *.pyc
 *.pyo
 __pycache__/
-# virtual environment
-test/
 
 # log files
 *.log
