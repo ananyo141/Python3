@@ -10,11 +10,15 @@ logging.basicConfig(level=logging.DEBUG, filemode='w',
 logging.disable(logging.CRITICAL)
 
 def module_importer(module_name):
+    '''(str) -> ModuleType
+    Read the module name as a string and try to import it normally,
+    failing which tries to download required package and resolve dependencies.
+    '''
     try:
         return importlib.import_module(module_name)
     except ModuleNotFoundError:
         print('Resolving dependencies...')
-        print(f'Needed module: {module_name}')
+        print(f'Required module: {module_name}')
         os.system('pip install ' + module_name)
         return importlib.import_module(module_name)
 
