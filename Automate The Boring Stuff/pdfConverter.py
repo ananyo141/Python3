@@ -70,7 +70,7 @@ class PDF(FPDF):
         self.image(image_path, 10, 8, 25) # set the logo
         self.set_font('times', 'BI', 16) # font 
         self.set_text_color(random_color(), random_color(), random_color())  # set text-color
-        self.cell(0, 10, header, ln = True, align = 'R') # position header in the center
+        self.cell(0, 10, header, ln = True, align = 'R') # position header in the right
         self.ln(9)  # line break
 
     # Defining custom-footer
