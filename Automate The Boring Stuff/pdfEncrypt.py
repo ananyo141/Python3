@@ -1,7 +1,9 @@
 # This script encrypts all the pdf-s in the given user directory
 import tkinter.filedialog, importlib, os, sys, logging, shutil
-logging.basicConfig(filename = 'pdfEncrypt.log', level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
+# filename = 'pdfEncrypt.log'
+logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
                     datefmt = '%d/%m/%Y %I:%H:%S %p', filemode = 'w')
+logging.disable(logging.CRITICAL)
 
 def module_importer(module_name, package_name):
     '''(str, str) -> ModuleType
@@ -59,13 +61,13 @@ def main():
                         pdfOutput.write(outputFile)     
                     # Check if the encryption was successful by checking if encrypted and try to decrypt
                     with open(outputFilename, 'rb') as reopenedFile:
-                        reopen = pypdf2.PdfFileReader(reopenedFile)
-                        if not reopen.isEncrypted:
+                        reopenPDF = pypdf2.PdfFileReader(reopenedFile)
+                        if not reopenPDF.isEncrypted:
                             print(f'{outputFilename} encryption unsuccessful')
                             continue
                         try:
-                            reopen.decrypt(passw)
-                            reopen.getPage(0)
+                            reopenPDF.decrypt(passw)
+                            reopenPDF.getPage(0)
                         except:
                             print(f'{outputFilename} cannot be opened after encryption')
                             continue
