@@ -32,19 +32,20 @@ def main():
 
     passw = pyip.inputPassword(prompt = 'Enter the password you want to encrypt the PDFs with: ')
 
+    saveDir = directory + os.sep + 'Encrypted Files' + os.sep;                 logging.info(f'{saveDir = }')
     for dir, subdir, filenames in os.walk(directory):
         for filename in filenames:
             # Encrypt all the pdf's using pypdf2 module
             if os.path.splitext(filename)[1] == '.pdf':
-                saveDir = os.path.join(dir, 'Encrypted Files');                 logging.info(f'{saveDir = }')
                 os.makedirs(saveDir, exist_ok = True)
-                print('Found file %s' % (filename));                            logging.debug(f'{dir = }\n{filename = }')
-                with open(os.path.join(dir, filename), 'rb') as pdffile:
+                print('Encrypting file %s...' % (filename));                            logging.debug(f'{dir = }\n{filename = }')
+                filepath = os.path.join(dir, filename);                         logging.debug(f'{filepath = }')
+                with open(filepath, 'rb') as pdffile:
                     pdfInput = pypdf2.PdfFileReader(pdffile)
                     if pdfInput.isEncrypted:
                         print('File %s is already encrypted' % (filename))
                         pdffile.close()
-                        shutil.move(dir + os.sep + filename, saveDir + os.sep + os.path.splitext(filename)[0] + '_encrypted.pdf')
+                        shutil.move(filepath, saveDir + os.path.splitext(filename)[0] + '_encrypted.pdf')
                         continue
 
                     pdfOutput = pypdf2.PdfFileWriter()
@@ -53,7 +54,7 @@ def main():
                     pdfOutput.encrypt(passw)
 
                     # Save the encrypted files with _encrypted.pdf suffix
-                    outputFilename = saveDir + os.sep + os.path.splitext(filename)[0] + '_encrypted.pdf';  logging.debug(f'{outputFilename = }')
+                    outputFilename = saveDir + os.path.splitext(filename)[0] + '_encrypted.pdf';  logging.debug(f'{outputFilename = }')
                     with open(outputFilename, 'wb') as outputFile:
                         pdfOutput.write(outputFile)     
                     # Check if the encryption was successful by checking if encrypted and try to decrypt
@@ -63,13 +64,16 @@ def main():
                             print(f'{outputFilename} encryption unsuccessful')
                             continue
                         try:
+                            reopen.decrypt(passw)
                             reopen.getPage(0)
                         except:
                             print(f'{outputFilename} cannot be opened after encryption')
-
-                print('Files saved in %s' % (saveDir))                               
+                            continue
                 # Delete the original file
-                os.unlink(os.path.join(dir, filename))
+                os.unlink(filepath)
+
+    if os.path.exists(saveDir):
+        print('Files saved in %s' % (saveDir))                               
 
 
 if __name__ == '__main__':
