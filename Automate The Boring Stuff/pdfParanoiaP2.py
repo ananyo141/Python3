@@ -2,9 +2,10 @@
 # This is the counterpart of program pdfParanoiaP1
 import tkinter.filedialog, os, sys, logging, shutil
 from ModuleImporter import module_importer
-logging.basicConfig(filename='pdfParanoiaP2.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
+# filename = 'pdfParanoiaP2.log'
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
                     datefmt = '%d/%m/%Y %I:%H:%S %p', filemode = 'w')
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 
 # import third-party modules safely
 pypdf2 = module_importer('PyPDF2', 'PyPDF2')
