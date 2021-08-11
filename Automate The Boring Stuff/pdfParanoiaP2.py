@@ -2,8 +2,7 @@
 # This is the counterpart of program pdfParanoiaP1
 import tkinter.filedialog, os, sys, logging, shutil
 from ModuleImporter import module_importer
-# filename = 'pdfParanoiaP2.log'
-logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
+logging.basicConfig(filename='pdfParanoiaP2.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
                     datefmt = '%d/%m/%Y %I:%H:%S %p', filemode = 'w')
 # logging.disable(logging.CRITICAL)
 
@@ -16,13 +15,13 @@ def main():
     openDirectory = tkinter.filedialog.askdirectory()
     if not openDirectory:
         sys.exit('No directory chosen')
-    openDirectory = os.path.normpath(openDirectory)
+    openDirectory = os.path.normpath(openDirectory);                                logging.debug(f'{openDirectory = }')
 
     # Ask the user for password
     passw = pyip.inputPassword(prompt = 'Enter the password of the PDFs: ')
 
     # Find all the encrypted pdf's in the directory
-    saveDir = os.path.join(openDirectory, 'Decrypted Files')
+    saveDir = os.path.join(openDirectory, 'Decrypted Files');                       logging.info(f'{saveDir = }')
     for dir, subdir, filenames in os.walk(openDirectory):
         for filename in filenames:
             if os.path.splitext(filename)[1] == '.pdf':
@@ -33,7 +32,7 @@ def main():
                     if not pdfFileReader.isEncrypted:
                         continue
                     # If password incorrect, warn the user and continue
-                    print(f"Found encrypted file: {filename}")
+                    print(f"Found encrypted file: {filename}");                     logging.debug(f'{filename = }')
                     if not pdfFileReader.decrypt(passw):
                         print(f"Could not decrypt {filename}: Invalid Password")
                         continue
@@ -41,7 +40,7 @@ def main():
                     pdfFileWriter = pypdf2.PdfFileWriter()
                     for i in range(pdfFileReader.numPages):
                         pdfFileWriter.addPage(pdfFileReader.getPage(i))
-                    savefilename = os.path.splitext(os.path.basename(filename))[0] + '_decrypted.pdf'
+                    savefilename = os.path.splitext(os.path.basename(filename))[0] + '_decrypted.pdf';   logging.debug(f'{savefilename = }')
                     with open(os.path.join(saveDir, savefilename), 'wb') as saveFile:
                         pdfFileWriter.write(saveFile)
                     print(f"Decrypted file: {savefilename}")
@@ -52,4 +51,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
