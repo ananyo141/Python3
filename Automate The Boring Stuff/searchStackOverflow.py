@@ -1,6 +1,9 @@
 # Search for questions in StackOverflow
 
-import tkinter.filedialog, requests, bs4, sys, os, logging
+import tkinter.filedialog, sys, os, logging
+from ModuleImporter import module_importer
+requests = module_importer('requests', 'requests')
+bs4 = module_importer('bs4', 'beautifulsoup4')
 logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s')
 logging.disable(logging.CRITICAL)
 

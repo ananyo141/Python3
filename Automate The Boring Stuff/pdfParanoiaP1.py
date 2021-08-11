@@ -1,25 +1,11 @@
 # This script encrypts all the pdf-s in the given user directory
-import tkinter.filedialog, importlib, os, sys, logging, shutil
-# filename = 'pdfEncrypt.log'
+import tkinter.filedialog, os, sys, logging, shutil
+from ModuleImporter import module_importer
+# filename = 'pdfParanoiaP1.log'
 logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
                     datefmt = '%d/%m/%Y %I:%H:%S %p', filemode = 'w')
 logging.disable(logging.CRITICAL)
 
-def module_importer(module_name, package_name):
-    '''(str, str) -> ModuleType
-    Read the module name as a string and try to import it normally,
-    failing which tries to download required package and return the module.
-    '''
-    try:
-        return importlib.import_module(module_name)
-    except ModuleNotFoundError:
-        print('Resolving dependencies...')
-        print(f'Required Module: {package_name}')
-        try:
-            os.system('pip install ' + package_name)
-            return importlib.import_module(module_name)
-        except Exception as e:
-            sys.exit(str(e))
 
 # import third-party modules safely
 pypdf2 = module_importer('PyPDF2', 'PyPDF2')

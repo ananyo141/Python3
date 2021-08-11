@@ -1,20 +1,13 @@
 #! python3
 # This script converts text files into pdfs.
-def module_importer(module_name, package_name):
-    '''(str, str) -> ModuleType
-    Read the module name as a string and try to import it normally,
-    failing which tries to download required package and return the module.
-    '''
-    try:
-        return importlib.import_module(module_name)
-    except ModuleNotFoundError:
-        print('Resolving dependencies...')
-        print(f'Required Module: {package_name}')
-        try:
-            os.system('pip install ' + package_name)
-            return importlib.import_module(module_name)
-        except Exception as e:
-            sys.exit(str(e))
+import tkinter.filedialog, random, logging, sys, os
+from ModuleImporter import module_importer
+
+# filename = './pdfConverter.log'
+logging.basicConfig(level = logging.WARNING, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s',
+                    datefmt = '%d/%m/%Y %I:%M:%S %p', filemode = 'w')
+logging.disable(logging.CRITICAL)
+logging.critical('*** Had to use elevated log levels due to conflicting logging from FPDF module ***')
 
 def image_downloader(url: str) -> str:
     '''Takes the url of an image as argument and downloads the image, saves it to current directory 
@@ -38,13 +31,6 @@ def random_color():
     Return a random color between 0 to 255
     '''
     return random.randint(0, 255)
-
-import importlib, tkinter.filedialog, random, logging, sys, os
-# filename = './pdfConverter.log'
-logging.basicConfig(level = logging.WARNING, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s',
-                    datefmt = '%d/%m/%Y %I:%M:%S %p', filemode = 'w')
-logging.disable(logging.CRITICAL)
-logging.critical('*** Had to use elevated log levels due to conflicting logging from FPDF module ***')
 
             # Import third - party modules safely #
 fpdf = module_importer('fpdf', 'fpdf2')
