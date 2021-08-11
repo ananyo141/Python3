@@ -16,7 +16,7 @@ def main():
     if not directory:
         sys.exit('No directory chosen')
     # make the directory os specific
-    directory = os.path.normpath(directory);                                    logging.info(f'{directory = }')
+    directory = os.path.normpath(directory);                                   logging.info(f'{directory = }')
 
     passw = pyip.inputPassword(prompt = 'Enter the password you want to encrypt the PDFs with: ')
 
@@ -26,8 +26,8 @@ def main():
             # Encrypt all the pdf's using pypdf2 module
             if os.path.splitext(filename)[1] == '.pdf':
                 os.makedirs(saveDir, exist_ok = True)
-                print('Encrypting file %s...' % (filename));                            logging.debug(f'{dir = }\n{filename = }')
-                filepath = os.path.join(dir, filename);                         logging.debug(f'{filepath = }')
+                print('Encrypting file %s...' % (filename));                   logging.debug(f'{dir = }\n{filename = }')
+                filepath = os.path.join(dir, filename);                        logging.debug(f'{filepath = }')
                 with open(filepath, 'rb') as pdffile:
                     pdfInput = pypdf2.PdfFileReader(pdffile)
                     if pdfInput.isEncrypted:

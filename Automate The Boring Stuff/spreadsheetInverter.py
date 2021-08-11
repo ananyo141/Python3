@@ -1,11 +1,7 @@
 # This program invert the cells of a spreadsheet - the columns become the rows and rows the columns
 import tkinter.filedialog, os
-try:
-    import openpyxl
-except ModuleNotFoundError:
-    print("Downloading script dependencies...\n")
-    os.system('pip install openpyxl')
-    import openpyxl
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
 
 def main():
     # take the file

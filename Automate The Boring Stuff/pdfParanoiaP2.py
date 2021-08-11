@@ -12,20 +12,44 @@ pypdf2 = module_importer('PyPDF2', 'PyPDF2')
 pyip = module_importer('pyinputplus', 'pyinputplus')
 
 def main():
-    # TODO: Ask the user for a directory
-    directory = tkinter.filedialog.askdirectory()
-    if not directory:
+    # Ask the user for a directory
+    openDirectory = tkinter.filedialog.askdirectory()
+    if not openDirectory:
         sys.exit('No directory chosen')
-    directory = os.path.normpath(directory)
+    openDirectory = os.path.normpath(openDirectory)
 
-    # TODO: Ask the user for password
+    # Ask the user for password
     passw = pyip.inputPassword(prompt = 'Enter the password of the PDFs: ')
 
-    # TODO: Find all the encrypted pdf's in the directory
-    for dir, subdir, filenames in os.walk(directory):
+    # Find all the encrypted pdf's in the directory
+    saveDir = os.path.join(openDirectory, 'Decrypted Files')
+    for dir, subdir, filenames in os.walk(openDirectory):
         for filename in filenames:
             if os.path.splitext(filename)[1] == '.pdf':
-
+                os.makedirs(saveDir, exist_ok = True)
+                with open(os.path.join(dir, filename), 'rb') as pdfFile:
+                    pdfFileReader = pypdf2.PdfFileReader(pdfFile)
+                    # skip if not encrypted
+                    if not pdfFileReader.isEncrypted:
+                        continue
+                    # If password incorrect, warn the user and continue
+                    print(f"Found encrypted file: {filename}")
+                    if not pdfFileReader.decrypt(passw):
+                        print(f"Could not decrypt {filename}: Invalid Password")
+                        continue
+                    # create a decrypted version
+                    pdfFileWriter = pypdf2.PdfFileWriter()
+                    for i in range(pdfFileReader.numPages):
+                        pdfFileWriter.addPage(pdfFileReader.getPage(i))
+                    savefilename = os.path.splitext(os.path.basename(filename))[0] + '_decrypted.pdf'
+                    with open(os.path.join(saveDir, savefilename), 'wb') as saveFile:
+                        pdfFileWriter.write(saveFile)
+                    print(f"Decrypted file: {savefilename}")
+                        
+    if os.path.exists(saveDir):
+        print(f'Decrypted files saved at {saveDir}')
         
-    # TODO: Create decrypted copy of the file
-    # TODO: If password incorrect, warn the user and continue
+
+if __name__ == '__main__':
+    main()
+    
