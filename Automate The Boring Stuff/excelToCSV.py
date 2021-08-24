@@ -1,5 +1,7 @@
 # Convert Excel files (.xlsx) to Comma-separated files (.csv)
-import tkinter.filedialog, openpyxl, csv, os, sys
+import tkinter.filedialog, csv, os, sys
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
 
 def main():
     directory = tkinter.filedialog.askdirectory()
@@ -13,7 +15,7 @@ def main():
     for file in os.listdir(directory):
         if os.path.splitext(file)[1] != '.xlsx':
             continue
-        # For every sheet of excel spreadsheet, create a new csv file\
+        # For every sheet of excel spreadsheet, create a new csv file
         filepath = os.path.join(directory, file)
         xlfile = openpyxl.load_workbook(filepath)
         for sheetname in xlfile.sheetnames:
