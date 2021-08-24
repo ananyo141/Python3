@@ -1,9 +1,13 @@
 # Downloading XKCD Comics
 
-import requests, bs4, tkinter.filedialog, sys, os
-import logging
+import tkinter.filedialog, logging, sys, os
+from ModuleImporter import module_importer
+requests = module_importer('requests', 'requests')
+bs4 = module_importer('bs4', 'beautifulsoup4')
+
 # filename = './log.txt'
-logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s')
+logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s',
+                    datefmt="%d/%m/%Y - %I:%M:%S %p", filemode = 'w')
 logging.disable(logging.CRITICAL)
 
 headers = {
