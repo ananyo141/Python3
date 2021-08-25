@@ -4,12 +4,16 @@ from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
 
-logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s')
-logging.disable(logging.CRITICAL)
+logging.basicConfig(filename = 'multithreadedStackOverflow.log', level = logging.ERROR, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+                    datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')
+# logging.disable(logging.CRITICAL)
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
 }
+
+# keep track of 429 Too Many Requests Client Errors
+clientErr = 0
 
 def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'w');    logging.info(f'Starting Page {pageNum}')
@@ -20,7 +24,7 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
         mainPage = requests.get(mainPageLink, headers = headers)
         mainPage.raise_for_status()
     except Exception as exc:
-        sys.exit("Unable to reach StackOverflow at the moment\n\n" + str(exc))
+        sys.exit("Unable to reach StackOverflow at the moment\n\n" + str(exc));     logging.error(f'{str(exc) = }')
     
     mainPageSoup = bs4.BeautifulSoup(mainPage.text, 'lxml');                        logging.debug(f'{mainPageSoup = }')
     # Write the introduction
@@ -29,7 +33,7 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     file.write(f'Page Number: {pageNum}'.center(100) + '\n')
     questionLinks = mainPageSoup.select('div.summary a.question-hyperlink');        logging.info(f'{questionLinks = }')
     for index, questionTag in enumerate(questionLinks):
-        if index == 10:        # write maximum 10 questions (due to StackOverflow request restrictions)
+        if index >= 10:        # write maximum 10 questions (due to StackOverflow request restrictions)
             break
         questionUrl = 'https://www.stackoverflow.com' + questionTag.get('href');    logging.info(f'{questionUrl = }')
         question = questionTag.getText().strip();                                   logging.info(f'{question = }')
@@ -38,8 +42,16 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
             questionPage = requests.get(questionUrl, headers = headers)
             questionPage.raise_for_status();                                        logging.info(f'{questionPage.status_code = }')
         except Exception as exc:
+            if str(exc).startswith('429'):
+                global clientErr
+                clientErr += 1
+                if clientErr > 7:
+                    print('Server Timeout')
+                    return
+                else:
+                    continue
             print(f"Unable to fetch question: {question} from {questionUrl}.\n" + str(exc))
-            print("Continuing...")
+            print("Continuing...");                                                 logging.error(f'{str(exc) = }')
             continue
 
         questionPageSoup = bs4.BeautifulSoup(questionPage.text, 'lxml');            logging.debug(f'{questionPageSoup = }')
