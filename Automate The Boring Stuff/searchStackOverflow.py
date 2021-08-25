@@ -1,9 +1,9 @@
 # Search for questions in StackOverflow
-
 import tkinter.filedialog, sys, os, logging
 from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
+
 logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s')
 logging.disable(logging.CRITICAL)
 
@@ -14,7 +14,6 @@ headers = {
 def main(): 
     if len(sys.argv) < 2:
         sys.exit("Usage: python <script.py> <tags>")
-
     try:
         numPages = int(input("How many StackOverflow pages you want to scrape for answers?: "))
     except:
@@ -28,10 +27,8 @@ def main():
     tags = ('-').join(sys.argv[1:])
 
     for pageNum in range(1, numPages + 1):
-
         file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'w');    logging.info(f'Starting Page {pageNum}')
         print('\n' + f'Scraping Page: {pageNum} of {numPages}'.center(50))
-
     
         mainPageLink = 'https://stackoverflow.com/questions/tagged/' + tags + '?tab=votes' + '&page=' + str(pageNum) + '&pagesize=15'
         logging.warning(f'{mainPageLink = }')
@@ -80,3 +77,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

@@ -1,8 +1,9 @@
 # Search for questions in StackOverflow
-import tkinter.filedialog, threading, sys, os, logging
+import tkinter.filedialog, threading, time, sys, os, logging
 from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
+
 logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s')
 logging.disable(logging.CRITICAL)
 
@@ -13,8 +14,7 @@ headers = {
 def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'w');    logging.info(f'Starting Page {pageNum}')
 
-    print('\n' + f'Scraping Page: {pageNum} of {numPages}'.center(50))
-    mainPageLink = 'https://stackoverflow.com/questions/tagged/' + tags + '?tab=votes' + '&page=' + str(pageNum) + '&pagesize=15'
+    mainPageLink = 'https://stackoverflow.com/questions/tagged/' + tags + '?tab=votes&page=' + str(pageNum) + '&pagesize=15'
     logging.warning(f'{mainPageLink = }')
     try:
         mainPage = requests.get(mainPageLink, headers = headers)
@@ -28,8 +28,9 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     file.write(introduction + '\n\n')
     file.write(f'Page Number: {pageNum}'.center(100) + '\n')
     questionLinks = mainPageSoup.select('div.summary a.question-hyperlink');        logging.info(f'{questionLinks = }')
-    print(f"Found {len(questionLinks)} questions".center(50) + '\n')
-    for questionTag in questionLinks:
+    for index, questionTag in enumerate(questionLinks):
+        if index == 10:
+            break
         questionUrl = 'https://www.stackoverflow.com' + questionTag.get('href');    logging.info(f'{questionUrl = }')
         question = questionTag.getText().strip();                                   logging.info(f'{question = }')
         # Get into the question page
@@ -44,6 +45,8 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
         questionPageSoup = bs4.BeautifulSoup(questionPage.text, 'lxml');            logging.debug(f'{questionPageSoup = }')
         fullQuestion = questionPageSoup.select('#question > div.post-layout > div.postcell.post-layout--right > div.s-prose.js-post-body')[0].getText().strip()
         answers = questionPageSoup.select('div.answercell.post-layout--right div.s-prose.js-post-body');        logging.debug(f'{answers = }'); logging.info(f'{len(answers) = }'); logging.info(f'{fullQuestion = }')
+
+        print(f'Scraping Page: {pageNum} of {numPages}')
         print(f"Searching question: {question[:240]}...")
         print(f'Found {len(answers)} answers')
 
@@ -62,10 +65,7 @@ def main():
     if len(sys.argv) < 2:
         sys.exit("Usage: python <script.py> <tags>")
 
-    try:
-        numPages = int(input("How many StackOverflow pages you want to scrape for answers?: "))
-    except:
-        sys.exit("Expected Integer Input")
+    numPages = 20       # for safe scraping, so that stack overflow doesn't block IP address
 
     downloadDir = tkinter.filedialog.askdirectory()
     if not downloadDir:
@@ -73,21 +73,19 @@ def main():
     logging.info(f'{downloadDir = }')
 
     tags = ('-').join(sys.argv[1:])
-
+    start_time = time.time()
     threads = []
     for pageNum in range(1, numPages + 1):
         downloadThread = threading.Thread(target = downloadStackOverflow, args = [pageNum, numPages, tags, downloadDir])
-        if len(threads) % 3 == 0:
-            for thread in threads:
-                    thread.join()
-            threads = []
         threads.append(downloadThread)
         downloadThread.start()
 
     for thread in threads:
         thread.join()
-
+    end_time = time.time()
     print(f"\nSuccessfully scraped StackOverflow for questions tagged: '{tags}' and saved results in {downloadDir}") 
+    print("Total Time taken: %.2f" % (end_time - start_time))
+
 
 if __name__ == '__main__':
     main()
