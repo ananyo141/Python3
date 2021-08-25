@@ -30,7 +30,7 @@ def main():
         file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'w');    logging.info(f'Starting Page {pageNum}')
         print('\n' + f'Scraping Page: {pageNum} of {numPages}'.center(50))
     
-        mainPageLink = 'https://stackoverflow.com/questions/tagged/' + tags + '?tab=votes' + '&page=' + str(pageNum) + '&pagesize=15'
+        mainPageLink = 'https://stackoverflow.com/questions/tagged/' + tags + '?tab=votes&page=' + str(pageNum) + '&pagesize=15'
         logging.warning(f'{mainPageLink = }')
         try:
             mainPage = requests.get(mainPageLink, headers = headers)
@@ -77,4 +77,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

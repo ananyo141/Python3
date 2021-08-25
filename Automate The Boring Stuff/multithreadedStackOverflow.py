@@ -29,7 +29,7 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     file.write(f'Page Number: {pageNum}'.center(100) + '\n')
     questionLinks = mainPageSoup.select('div.summary a.question-hyperlink');        logging.info(f'{questionLinks = }')
     for index, questionTag in enumerate(questionLinks):
-        if index == 10:
+        if index == 10:        # write maximum 10 questions (due to StackOverflow request restrictions)
             break
         questionUrl = 'https://www.stackoverflow.com' + questionTag.get('href');    logging.info(f'{questionUrl = }')
         question = questionTag.getText().strip();                                   logging.info(f'{question = }')
@@ -77,14 +77,20 @@ def main():
     threads = []
     for pageNum in range(1, numPages + 1):
         downloadThread = threading.Thread(target = downloadStackOverflow, args = [pageNum, numPages, tags, downloadDir])
+        # allow 10 threads at a time
+        if len(threads) % 10 == 0:
+            for thread in threads:
+                thread.join()
+            threads = []
         threads.append(downloadThread)
         downloadThread.start()
 
-    for thread in threads:
-        thread.join()
+    # join the remaining threads
+    for remainingThread in threads:
+        remainingThread.join()
     end_time = time.time()
     print(f"\nSuccessfully scraped StackOverflow for questions tagged: '{tags}' and saved results in {downloadDir}") 
-    print("Total Time taken: %.2f" % (end_time - start_time))
+    print("Total Time taken: %.2f seconds" % (end_time - start_time))
 
 
 if __name__ == '__main__':
