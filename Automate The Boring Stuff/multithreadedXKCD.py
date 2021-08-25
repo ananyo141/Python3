@@ -3,14 +3,12 @@ import tkinter.filedialog, threading, logging, time, os, sys
 from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
-
-logging.basicConfig(filename = 'multithreadedXKCD.log', level = logging.ERROR, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+# filename = 'multithreadedXKCD.log'
+logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')
+logging.disable(logging.CRITICAL)
 
-# TODO: Add multithreading
-# TODO: Add time logging
-
-# This is a constant value that should not change to avoid concurrency issues with threading
+# This is a constant value that should not be changed to avoid concurrency issues with threading
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
 }
@@ -31,7 +29,7 @@ def downloadXkcd(startComic, endComic, directory):
         pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
         imgTags = pageSoup.select('#comic img');                                                logging.debug(f'{imgTags = }')
         if not imgTags:
-            print('Comic', comicNum, 'not found!');                                             logging.error('Not found Comic #' + str(comicNum) + str(error))
+            print('Comic', comicNum, 'not found!');                                             logging.error('Not found Comic #' + str(comicNum))
             continue
         imgUrl = imgTags[0].get('src');                                                         logging.debug(f'{imgUrl = }')                      
         # download the image
@@ -39,7 +37,7 @@ def downloadXkcd(startComic, endComic, directory):
             image = requests.get('https:' + imgUrl, headers = headers)
             image.raise_for_status()
         except Exception as err:
-            print(str(err));                                                                    logging.error('Connection Error Comic #' + str(comicNum) + str(error))
+            print(str(err));                                                                    logging.error('Connection Error Comic #' + str(comicNum) + str(err))
             continue
         # write the downloaded file
         saveName = os.path.join(directory, os.path.basename(imgUrl));                           logging.debug(f'{saveName = }')
@@ -70,22 +68,22 @@ def main():
     except ValueError:  # for latestComicNumber
         sys.exit('Unable to parse latest comic number')
 
-    start_time = time.time()
+    start_time = time.time()        # log start time
     # Initialize threading
     threads = []
-    for start in range(latestComicNumber, 0, -10):
-        end = start - 10;                                                                       
-        if end < 1:
-            end = 1
+    for end in range(latestComicNumber + 1, 0, -10):
+        start = end - 10                                                                       
+        if start < 1:
+            start = 1
         logging.critical(f'{start = }, {end = }')
-        downloadThread = threading.Thread(target = downloadXkcd, args = [end, start, directory])
+        downloadThread = threading.Thread(target = downloadXkcd, args = [start, end, directory])
         threads.append(downloadThread)
-        downloadThread.start()      # start the thread
+        downloadThread.start()      # starting thread
     
     # Pause until all the threads finish
     for thread in threads:
         thread.join()
-    end_time = time.time()
+    end_time = time.time()          # log finish time
 
     print('Finished downloading all the comics!')
     print('Total time taken = %.2f seconds' % (end_time - start_time))
