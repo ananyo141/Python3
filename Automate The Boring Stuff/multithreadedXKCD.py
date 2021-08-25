@@ -39,11 +39,13 @@ def downloadXkcd(startComic, endComic, directory):
         except Exception as err:
             print(str(err));                                                                    logging.error('Connection Error Comic #' + str(comicNum) + str(err))
             continue
-        # write the downloaded file
-        saveName = os.path.join(directory, os.path.basename(imgUrl));                           logging.debug(f'{saveName = }')
+        # save the downloaded file
+        imageTitle = os.path.basename(imgUrl)
+        saveName = os.path.join(directory, imageTitle);                                         logging.debug(f'{saveName = }')
         with open(saveName, 'wb') as imageFile:
             for chunk in image.iter_content(1000000):
                 imageFile.write(chunk)
+        print('Downloaded comic #' + str(comicNum), imageTitle)
 
 def main():
     directory = tkinter.filedialog.askdirectory(title = 'Select download directory')
@@ -85,7 +87,7 @@ def main():
         thread.join()
     end_time = time.time()          # log finish time
 
-    print('Finished downloading all the comics!')
+    print('\nFinished downloading all the comics!')
     print('Total time taken = %.2f seconds' % (end_time - start_time))
 
 
