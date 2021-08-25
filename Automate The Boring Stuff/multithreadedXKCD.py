@@ -1,10 +1,10 @@
 # Download XKCD comics using multithreading
-import tkinter.filedialog, threading, logging, os, sys
+import tkinter.filedialog, threading, logging, time, os, sys
 from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
 
-logging.basicConfig(filename = 'multithreadedXKCD.log', level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+logging.basicConfig(filename = 'multithreadedXKCD.log', level = logging.ERROR, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')
 
 # TODO: Add multithreading
@@ -26,23 +26,23 @@ def downloadXkcd(startComic, endComic, directory):
             page = requests.get('https://xkcd.com/' + str(comicNum), headers = headers);        logging.info(f'{page.status_code = }')
             page.raise_for_status()
         except Exception as error:
-            print(str(error))
+            print('Error downloading comic', comicNum, str(error));                             logging.error('Connection Error Comic #' + str(comicNum) + str(error))
             continue
-        pageSoup = bs4.BeautifulSoup(page.text, 'lxml');                                        logging.debug(f'{pageSoup = }')
-        imgTags = pageSoup.select('#comic img');                                                logging.info(f'{imgTags = }')
+        pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
+        imgTags = pageSoup.select('#comic img');                                                logging.debug(f'{imgTags = }')
         if not imgTags:
-            print('No comic found!')
+            print('Comic', comicNum, 'not found!');                                             logging.error('Not found Comic #' + str(comicNum) + str(error))
             continue
-        imgUrl = imgTags[0].get('src');                                                         logging.info(f'{imgUrl = }')                      
+        imgUrl = imgTags[0].get('src');                                                         logging.debug(f'{imgUrl = }')                      
         # download the image
         try:
             image = requests.get('https:' + imgUrl, headers = headers)
             image.raise_for_status()
         except Exception as err:
-            print(str(err))
+            print(str(err));                                                                    logging.error('Connection Error Comic #' + str(comicNum) + str(error))
             continue
         # write the downloaded file
-        saveName = os.path.join(directory, os.path.basename(imgUrl));                           logging.critical(f'{saveName = }')
+        saveName = os.path.join(directory, os.path.basename(imgUrl));                           logging.debug(f'{saveName = }')
         with open(saveName, 'wb') as imageFile:
             for chunk in image.iter_content(1000000):
                 imageFile.write(chunk)
@@ -51,16 +51,16 @@ def main():
     directory = tkinter.filedialog.askdirectory(title = 'Select download directory')
     if not directory:
         sys.exit('Download directory not chosen')
-    directory = os.path.normpath(directory);                                                    logging.critical(f'{directory = }')
+    directory = os.path.normpath(directory);                                                    logging.warning(f'{directory = }')
     
     # note the latest comic
     try:
-        mainPage = requests.get('https://xkcd.com', headers = headers);                         logging.critical(f'{mainPage.status_code = }')
+        mainPage = requests.get('https://xkcd.com', headers = headers);                         logging.warning(f'{mainPage.status_code = }')
         mainPage.raise_for_status()
     except Exception as error:
         sys.exit(str(error))
 
-    mainPageSoup = bs4.BeautifulSoup(mainPage.text, 'lxml');                                    logging.debug(f'{mainPageSoup = }')
+    mainPageSoup = bs4.BeautifulSoup(mainPage.text, 'lxml')
     latestComicTag = mainPageSoup.select('#middleContainer > a:nth-child(6)');                  logging.info(f'{latestComicTag = }')
     try:
         latestComicLink = latestComicTag[0].get('href');                                        logging.info(f'{latestComicLink = }')
@@ -70,22 +70,25 @@ def main():
     except ValueError:  # for latestComicNumber
         sys.exit('Unable to parse latest comic number')
 
-    # initialize threading
+    start_time = time.time()
+    # Initialize threading
     threads = []
     for start in range(latestComicNumber, 0, -10):
-        end = start - 10
+        end = start - 10;                                                                       
         if end < 1:
             end = 1
-        
+        logging.critical(f'{start = }, {end = }')
         downloadThread = threading.Thread(target = downloadXkcd, args = [end, start, directory])
         threads.append(downloadThread)
         downloadThread.start()      # start the thread
     
-    # pause until all the threads finish
+    # Pause until all the threads finish
     for thread in threads:
         thread.join()
+    end_time = time.time()
 
     print('Finished downloading all the comics!')
+    print('Total time taken = %.2f seconds' % (end_time - start_time))
 
 
 if __name__ == '__main__':
