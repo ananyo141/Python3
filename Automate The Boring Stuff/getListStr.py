@@ -14,32 +14,35 @@ def getListStr(list):
     # with proper indexes, duplicate indexes were found. Maybe this is how python stores empty strings in lists.
     # That's why traditional methods aren't working, had to modify the input delivery system to prohibit
     # empty strings in the first place. 
+                                    ### DELETED PREVIOUS OBSOLETE CODE ###
 
-    # Delete any empty string in list
-    for individualString in list:
-        if len(individualString) == 0:
-            del list[list.index(individualString)]      # also tried with del and getting each index in-situ
+    listAsStr = ''
+    nonEmptyItems = 0
+    for item in list:
+        if str(item) != '':
+            nonEmptyItems += 1
 
-    # Exit and return None if there is no string in the list
-    if len(list) <1:
-        print("No string detected")
-        return
-
-    collect=''
-    for i in range(len(list)-1):
-        collect=collect+list[i]+','+' '
-    collect=collect+'and '+list[len(list)-1]
-    return collect
-
+    print(nonEmptyItems)
+            
+    for index, item in enumerate(list):
+        if str(item) == '':
+            continue
+        listAsStr += str(item)
+        if index == nonEmptyItems - 2:
+            listAsStr += ' and '
+        elif index != len(list) - 1:
+            listAsStr += ', '
+    
+    return listAsStr
 
 def main():
     # Default: ['apples', 'guava', 'tofu', 'cat']
     string=input("Enter the strings('done' to exit): ")
     stringList=[]
     while string != 'done':
-        if len(string) < 1:
-            string=input("Enter the strings('done' to exit): ")
-            continue
+        # if len(string) < 1:
+        #     string=input("Enter the strings('done' to exit): ")
+        #     continue
 
         stringList.append(string)
         string=input("Enter the strings('done' to exit): ")
