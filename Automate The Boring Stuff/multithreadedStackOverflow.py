@@ -17,9 +17,9 @@ headers = {
 clientErr = 0
 
 def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
-    # return if server already timed-out
+    # return if IP already got rate-limited
     global clientErr            # requires the global counter to keep track of errors encountered by all the threads
-    if clientErr > 5:
+    if clientErr > 7:
         return
 
     file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'wb');    logging.info(f'Starting Page {pageNum}')
@@ -50,7 +50,6 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
         except Exception as exc:
             if str(exc).startswith('429'):
                 clientErr += 1
-                print('Server Timeout')
                 continue
             print(f"Unable to fetch question: {question} from {questionUrl}.\n" + str(exc))
             print("Continuing...");                                                 logging.error(f'{str(exc) = }')
@@ -79,7 +78,7 @@ def main():
     if len(sys.argv) < 2:
         sys.exit("Usage: python <script.py> <tags>")
 
-    numPages = 20       # for safe scraping, so that stack overflow doesn't block IP address
+    numPages = 20       # for safe scraping, so that stack overflow doesn't rate-limit IP address
 
     downloadDir = tkinter.filedialog.askdirectory()
     if not downloadDir:
@@ -103,8 +102,12 @@ def main():
     for remainingThread in threads:
         remainingThread.join()
     end_time = time.time()
+
+    # notify the user that server got rate-limited 
+    if clientErr > 7:
+        print('\nIP Rate Limited')
     print(f"\nSuccessfully scraped StackOverflow for questions tagged: '{tags}' and saved results in {downloadDir}") 
-    print("Total Time taken: %.2f seconds" % (end_time - start_time))
+    print("Total Time taken: %.2f seconds" % (end_time - start_time));              logging.warning(f'{clientErr = }')
 
 
 if __name__ == '__main__':
