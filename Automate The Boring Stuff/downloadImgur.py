@@ -1,8 +1,10 @@
 #!python3
 # This program takes user input from command line and downloads images into user selected folder
-
-import requests, bs4, sys, os, tkinter.filedialog, time
-import logging
+import sys, os, tkinter.filedialog, time, logging
+from ModuleImporter import module_importer
+requests = module_importer('requests', 'requests')
+bs4 = module_importer('bs4', 'beautifulsoup4')
+slugify = module_importer('slugify', 'python-slugify')
 
 # filename = 'multhreadedImgur.log'
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
@@ -28,6 +30,7 @@ def main():
     downloadDir = tkinter.filedialog.askdirectory()
     if not downloadDir:
         sys.exit("No directory chosen.")
+    downloadDir = os.path.normpath(downloadDir)
     logging.debug(f'{downloadDir = }')
 
     url = 'https://imgur.com/r/' + keywords
@@ -83,8 +86,8 @@ def main():
             continue
 
         tries = 0
-        # writing the downloaded file
-        fileName = downloadDir + os.sep + imageName + '.jpg'
+        # writing the downloaded file, normalize the imagename to be suitable for filename
+        fileName = downloadDir + os.sep + slugify.slugify(imageName) + '.jpg'
         # for duplicate image names
         count = 1
         fileStem = os.path.splitext(fileName)[0]
@@ -97,7 +100,6 @@ def main():
         for chunk in downloadImage.iter_content(1000000):
             file.write(chunk)
         file.close()
-        # time.sleep(0.4)         # To avoid blocking of script requests
 
     print("Download Completed")
     print(f"Files saved at directory: {downloadDir}")
