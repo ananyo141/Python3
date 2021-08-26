@@ -1,14 +1,16 @@
 #!python3
 # This program takes user input from command line and downloads images into user selected folder
-
 import threading, sys, os, tkinter.filedialog, time, logging
 from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
 slugify = module_importer('slugify', 'python-slugify')
 
-logging.basicConfig(filename = 'multhreadedImgur.log', level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+# filename = 'multhreadedImgur.log'
+logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')
+logging.disable(logging.CRITICAL)
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
 }
@@ -26,8 +28,6 @@ def downloadImgur(mainPageSoup, i, imagesLinks, downloadDir):
         print("\nUnexpected error:\n" + str(exc))
         return
 
-
-        
     # writing the downloaded file
     fileName = downloadDir + os.sep + slugify.slugify(imageName) + '.jpg';                  logging.critical(f'{fileName = }')
     # for duplicate image names
@@ -76,7 +76,8 @@ def main():
 
     threads = []
     start_time = time.time()
-    for i in range(min(len(imagesLinks), numImages)):
+    imagesToDownload = min(len(imagesLinks), numImages)
+    for i in range(imagesToDownload):
        downloadThread = threading.Thread(target = downloadImgur, args = [mainPageSoup, i, imagesLinks, downloadDir])
        threads.append(downloadThread)
        downloadThread.start()
@@ -86,6 +87,7 @@ def main():
         thread.join()
 
     end_time = time.time()
+    print(f"\nFound and scraped  total {imagesToDownload} images")
     print("Download Completed, time taken = %.2f seconds" % (end_time - start_time))
     print(f"Files saved at directory: {downloadDir}")
 
