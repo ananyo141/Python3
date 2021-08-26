@@ -19,7 +19,7 @@ clientErr = 0
 def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     # return if server already timed-out
     global clientErr            # requires the global counter to keep track of errors encountered by all the threads
-    if clientErr > 7:
+    if clientErr > 5:
         return
 
     file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'wb');    logging.info(f'Starting Page {pageNum}')

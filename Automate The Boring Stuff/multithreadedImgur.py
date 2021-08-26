@@ -1,20 +1,15 @@
 #!python3
 # This program takes user input from command line and downloads images into user selected folder
 
-import requests, bs4, sys, os, tkinter.filedialog, time
-import logging
+import requests, bs4, sys, os, tkinter.filedialog, time, logging
 
-# filename = 'multhreadedImgur.log'
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+logging.basicConfig(filename='multhreadedImgur.log', level=logging.INFO, format="%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt='%d/%m/%Y - %I:%M:%S %p', filemode='w')
-logging.disable(logging.CRITICAL)
-
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
 }
 
 def main():
-    logging.info('Starting program')
     if len(sys.argv) < 2:
         sys.exit("Usage: <script>.py {keywords}")
 
