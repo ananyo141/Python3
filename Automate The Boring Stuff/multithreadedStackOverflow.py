@@ -4,19 +4,25 @@ from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
 
-logging.basicConfig(filename = 'multithreadedStackOverflow.log', level = logging.ERROR, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+# filename = 'multithreadedStackOverflow.log'
+logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
 }
 
-# keep track of 429 Too Many Requests Client Errors
+# keep track of '429 Too Many Requests' Client Errors
 clientErr = 0
 
 def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
-    file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'w');    logging.info(f'Starting Page {pageNum}')
+    # return if server already timed-out
+    global clientErr            # requires the global counter to keep track of errors encountered by all the threads
+    if clientErr > 7:
+        return
+
+    file = open(downloadDir + os.sep + 'Page ' + str(pageNum) + '.txt', mode = 'wb');    logging.info(f'Starting Page {pageNum}')
 
     mainPageLink = 'https://stackoverflow.com/questions/tagged/' + tags + '?tab=votes&page=' + str(pageNum) + '&pagesize=15'
     logging.warning(f'{mainPageLink = }')
@@ -29,8 +35,8 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
     mainPageSoup = bs4.BeautifulSoup(mainPage.text, 'lxml');                        logging.debug(f'{mainPageSoup = }')
     # Write the introduction
     introduction = mainPageSoup.select('div.mb24>p')[0].getText();                  logging.info(f'{introduction = }')
-    file.write(introduction + '\n\n')
-    file.write(f'Page Number: {pageNum}'.center(100) + '\n')
+    file.write((introduction + '\n\n').encode('utf8'))
+    file.write((f'Page Number: {pageNum}'.center(100) + '\n').encode('utf8'))
     questionLinks = mainPageSoup.select('div.summary a.question-hyperlink');        logging.info(f'{questionLinks = }')
     for index, questionTag in enumerate(questionLinks):
         if index >= 10:        # write maximum 10 questions (due to StackOverflow request restrictions)
@@ -43,13 +49,9 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
             questionPage.raise_for_status();                                        logging.info(f'{questionPage.status_code = }')
         except Exception as exc:
             if str(exc).startswith('429'):
-                global clientErr
                 clientErr += 1
-                if clientErr > 7:
-                    print('Server Timeout')
-                    return
-                else:
-                    continue
+                print('Server Timeout')
+                continue
             print(f"Unable to fetch question: {question} from {questionUrl}.\n" + str(exc))
             print("Continuing...");                                                 logging.error(f'{str(exc) = }')
             continue
@@ -62,14 +64,14 @@ def downloadStackOverflow(pageNum, numPages, tags, downloadDir):
         print(f"Searching question: {question[:240]}...")
         print(f'Found {len(answers)} answers')
 
-        file.write('\n\n' + ' Question: '.center(100,'*'))
-        file.write('\n\n' + question)
-        file.write(fullQuestion + '\n\n')
-        file.write(f"Answers found: {len(answers)}".rjust(100) + '\n')
+        file.write(('\n\n' + ' Question: '.center(100,'*')).encode('utf-8'))
+        file.write(('\n\n' + question).encode('utf-8'))
+        file.write((fullQuestion + '\n\n').encode('utf-8'))
+        file.write((f"Answers found: {len(answers)}".rjust(100) + '\n').encode('utf-8'))
         # write the answers
         for i in range(len(answers)):
-            file.write('\n\n' + f' Answer {i + 1} '.center(100, '-') + '\n\n')
-            file.write(answers[i].getText())
+            file.write(('\n\n' + f' Answer {i + 1} '.center(100, '-') + '\n\n').encode('utf-8'))
+            file.write((answers[i].getText()).encode('utf-8'))
 
     file.close()
 
