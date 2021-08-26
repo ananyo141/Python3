@@ -1,5 +1,7 @@
 # Separates the words of a different text files in a spreadsheet and insert them per row per file.
-import tkinter.filedialog, openpyxl, os
+import tkinter.filedialog, os
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
 
 CELL_COLUMN_WIDTH = 12
 TITLE_COLUMN_WIDTH = 24

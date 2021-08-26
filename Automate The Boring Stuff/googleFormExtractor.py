@@ -1,5 +1,8 @@
 # This script extracts the data from a google form spreadsheet.
-import ezsheets, os
+import os
+from ModuleImporter import module_importer
+ezsheets = module_importer('ezsheets', 'ezsheets')
+
 
 def count_responses(firstColumn):
     '''(list) --> int

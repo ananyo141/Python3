@@ -9,8 +9,6 @@ if start=='':
     except:
         print("Input is invalid")
     
-    
-    
     #include guessing limit
     for guessesTaken in range(1,no_of_guess+1):
 
@@ -37,18 +35,15 @@ if start=='':
         elif (lowRange<=guessval<ans):
             print("Your guess is too low")
             print("No. of guesses left:", (no_of_guess-guessesTaken))
-            
-
+        
         else:
             print("You went out of the guessing domain. LOL!")
             print("No. of guesses left:", (no_of_guess-guessesTaken))
     
     print("You lose HAHA!\nYou just had to guess",ans,"in",no_of_guess,"guesses you loser!")
 
-
 elif start=='quit':
     print("You terminated the game! You sissy XD")
 else:
     print("You entered invalid choice")
     
-

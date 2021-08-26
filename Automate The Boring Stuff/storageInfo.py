@@ -1,6 +1,5 @@
 #!python3
 # This program analyzes the directory input by the user for size, file number.
-
 import tkinter.filedialog, os
 
 def convertMB(size_bytes):
@@ -67,3 +66,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

@@ -1,6 +1,7 @@
 #! python3
 # This script updates the prices for garlic, celery or lemons in the excel file 'produceSales.xlsx'.
-import openpyxl
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
 from openpyxl.styles import Font
 
 updatedPricing = {'Garlic': 3.07,
@@ -24,7 +25,6 @@ def main():
     
     xlFile.save('./updatedProduceSales.xlsx')
     print("File updated and saved")
-
 
 if __name__ == '__main__':
     main()

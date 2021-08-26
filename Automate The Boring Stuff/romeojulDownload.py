@@ -1,6 +1,8 @@
 # This program downloads the romeo juliet file from the automate site
-import requests, webbrowser, pyinputplus as pyip
-import tkinter.filedialog
+import webbrowser, tkinter.filedialog
+from ModuleImporter import module_importer
+requests = module_importer('requests', 'requests')
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 choice = pyip.inputChoice(choices = ['visit','download'], prompt = "Do you want to open the website for Romeo Juliet or download?(Visit/Download): ")
 if choice.lower() == 'visit':

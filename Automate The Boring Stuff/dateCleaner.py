@@ -1,6 +1,8 @@
 #! python3
 # Clean the dates in the clipboard by substituting in the given text in a standard format with the help of regex.
-import re, pyperclip
+import re
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 def dateCleaner(string):
     '''(str)-->str

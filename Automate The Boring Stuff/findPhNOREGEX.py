@@ -1,5 +1,4 @@
 # Find the phone number in the given string without the help of regex.
-
 import time
 
 def isAmrPhNum(string):
@@ -18,7 +17,6 @@ def isAmrPhNum(string):
     if not string[8:12].isdecimal():
         return False
     return True
-
 
 def isInPhnNum(string):
     '''(str)-->Bool

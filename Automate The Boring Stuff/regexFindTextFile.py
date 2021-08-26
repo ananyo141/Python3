@@ -1,7 +1,4 @@
-# Open all .txt file in a folder
-# Search for a user supplied regex
-# Print result on screen
-
+# Open all .txt file in a folder and search for a user supplied regex
 import tkinter.filedialog, re, os
 from pathlib import Path
 

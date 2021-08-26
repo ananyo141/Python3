@@ -1,5 +1,7 @@
 # Reverse the wordSeparatorExcel program
-import tkinter.filedialog, openpyxl, os
+import tkinter.filedialog, os
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
 
 def main():
     # take the spreadsheet

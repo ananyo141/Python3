@@ -1,4 +1,5 @@
 # WAP to write a Collatz Sequence.
+
 def collatz(number):
     '''(int)-->int
     Print and return int division of number by 2 if number is even or else return 3*number+1 if number is odd.

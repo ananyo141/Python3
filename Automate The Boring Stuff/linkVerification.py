@@ -1,5 +1,8 @@
 # Verify the links in a given webpage.
-import requests, bs4, sys
+import sys
+from ModuleImporter import module_importer
+requests = module_importer('requests', 'requests')
+bs4 = module_importer('bs4', 'beautifulsoup4')
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',

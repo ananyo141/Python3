@@ -1,5 +1,8 @@
 # Insert blank rows in a excel spreadsheet at a given row
 import tkinter.filedialog, openpyxl, sys, os
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
+
 
 def main():
     print("Enter the file you want to add rows to:")

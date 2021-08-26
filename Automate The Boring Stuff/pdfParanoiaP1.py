@@ -1,15 +1,16 @@
 # This script encrypts all the pdf-s in the given user directory
 import tkinter.filedialog, os, sys, logging, shutil
 from ModuleImporter import module_importer
+
+# import third-party modules safely
+pypdf2 = module_importer('PyPDF2', 'PyPDF2')
+pyip = module_importer('pyinputplus', 'pyinputplus')
+
 # filename = 'pdfParanoiaP1.log'
 logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)s - %(message)s',
                     datefmt = '%d/%m/%Y %I:%H:%S %p', filemode = 'w')
 logging.disable(logging.CRITICAL)
 
-
-# import third-party modules safely
-pypdf2 = module_importer('PyPDF2', 'PyPDF2')
-pyip = module_importer('pyinputplus', 'pyinputplus')
 
 def main():    
     directory = tkinter.filedialog.askdirectory();            

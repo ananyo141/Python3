@@ -1,6 +1,8 @@
 # Give the user option to find the passwords in the given text, or enter one manually.
 # Check the password and give rating as weak, medium, strong, unbreakable and include tips to improve it.
-import re, pyperclip, time, sys
+import re, time, sys
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 def passwordFinder(text):
     '''(str)--->list

@@ -1,9 +1,11 @@
 #!python3
 # This program copies or moves (arranges) files in a folder according to their file extensions.
 
-import tkinter.filedialog, send2trash, shutil, os
-import pyinputplus as pyip
+import tkinter.filedialog, shutil, os
 from pathlib import Path
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
+send2trash = module_importer('send2trash', 'send2trash')
 
 def inputDir():
     '''(NoneType) ---> Str
@@ -12,7 +14,7 @@ def inputDir():
     while True:
         chosenDir = tkinter.filedialog.askdirectory()
         if chosenDir:
-            return chosenDir
+            return os.path.normpath(chosenDir)
 
 def main():
     print("Choose the directory to clean and organize")

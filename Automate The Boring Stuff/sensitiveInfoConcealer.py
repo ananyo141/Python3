@@ -1,5 +1,7 @@
 # Remove the sensitive information like credit cards, social security numbers, phone numbers from the clipboard.
-import re, pyperclip
+import re
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 def infoConcealer(text):
     '''(str)-->str

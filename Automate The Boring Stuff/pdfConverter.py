@@ -2,6 +2,10 @@
 # This script converts text files into pdfs.
 import tkinter.filedialog, random, logging, sys, os
 from ModuleImporter import module_importer
+            # Import third - party modules safely #
+fpdf = module_importer('fpdf', 'fpdf2')
+from fpdf import FPDF
+requests = module_importer('requests', 'requests')
 
 # filename = './pdfConverter.log'
 logging.basicConfig(level = logging.WARNING, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s',
@@ -32,10 +36,6 @@ def random_color():
     '''
     return random.randint(0, 255)
 
-            # Import third - party modules safely #
-fpdf = module_importer('fpdf', 'fpdf2')
-from fpdf import FPDF
-requests = module_importer('requests', 'requests')
 
                     # Global Variables #
 title = input('Enter title for the pdfs: ');                                   logging.warning(f'{title = }')

@@ -1,9 +1,9 @@
 #!python3
 # This program searches for gaps in numbering in files with a given prefix in directory
-
 import tkinter.filedialog, shutil, sys, os
-import pyinputplus as pyip
 from pathlib import Path
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 # Input insert value in terminal for inserting gap in file numbering
 

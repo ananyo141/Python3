@@ -1,7 +1,9 @@
 #!python3
 # This program searches Amazon website for the product entered by the user
-
-import webbrowser, requests, bs4, sys
+import webbrowser, sys
+from ModuleImporter import module_importer
+requests = module_importer('requests', 'requests')
+bs4 = module_importer('bs4', 'beautifulsoup4')
 
 # So that Amazon doesn't block script requests
 headers = {

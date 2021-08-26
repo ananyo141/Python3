@@ -1,8 +1,9 @@
 #!python3 
 # WAP that takes the text in the clipboard and adds a '*' and space before each line and copies to the 
 # clipboard for further usage.
-
-import sys,pyperclip
+import sys
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 def textNumbering(text, mode):
     '''(str,str)-->str

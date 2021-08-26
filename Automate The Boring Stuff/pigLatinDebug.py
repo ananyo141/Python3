@@ -4,7 +4,6 @@
 # If it begins with a consonant or consonant cluster (like ch or gr), that consonant or cluster is 
 # moved to the end of the word followed by ay.
 
-
 english=input("Enter the sentence you want to convert to Pig Latin:\n")
 vowels='aeiouy'
 words=english.split()
@@ -29,8 +28,3 @@ for word in words:
 
 pigLatinStr = ' '.join(pigLatin)
 print(pigLatinStr)
-
-        
-
-        
-    

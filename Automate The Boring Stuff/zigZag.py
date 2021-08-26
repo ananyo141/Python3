@@ -1,8 +1,15 @@
 # Create a small zigzag animation program.
-
 import time, sys, os
 
-os.system("clear")
+def clear():
+    '''(None) -> None
+    Clear the terminal screen'''
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+        
+clear()
 
 indent=0
 character = input("What string do you want to animate?: ")
@@ -31,7 +38,7 @@ if start.lower()=='y' or start.lower().startswith('ye'):
                 if indent==0:
                     indentRight=True
     except KeyboardInterrupt:
-        os.system("clear")
+        clear()
         sys.exit("\nDid you like the animation? Hope you did.\nTry out other combinations of characters and have fun!")
 else:
     print("Maybe next time then.")

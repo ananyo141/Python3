@@ -15,4 +15,3 @@ def findCharOcc(string):
 askStr=input("Enter the string you want to evaluate the distribution: ")
 charDist=findCharOcc(askStr)
 pprint(charDist)
-

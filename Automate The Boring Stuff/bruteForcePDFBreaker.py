@@ -1,6 +1,7 @@
 # Brute force break the password of user pdf
 import tkinter.filedialog, sys
-import PyPDF2 as pypdf2
+from ModuleImporter import module_importer
+pypdf2 = module_importer('PyPDF2', 'PyPDF2')
 
 def main():
     # Input the dictionary file

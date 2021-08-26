@@ -1,8 +1,10 @@
 #! python3
 # Write a similar multiclipboard program that uses command prompt arguments 
 # with save, list and delete functionality
+import shelve, sys
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
-import shelve, pyperclip, sys
 keyData = shelve.open('keydataSaveFile')
 
 if len(sys.argv) < 2:

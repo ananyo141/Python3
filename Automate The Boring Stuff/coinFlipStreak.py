@@ -1,6 +1,5 @@
 # WAP to ask the user how many coin tosses to make, and find out how what streak to calculate
 # and the percentage of the streaks in the given tosses.
-
 import random
 
 def generate_coin_tosses(list,tossNum):
@@ -65,5 +64,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    

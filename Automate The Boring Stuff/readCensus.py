@@ -1,7 +1,9 @@
 #!python3
 # Read the census from the 'censuspopdata.xlsx' file and write the data as a 
 # dictionary and save as census2010.py
-import pprint, openpyxl as pyxl
+import pprint
+from ModuleImporter import module_importer
+pyxl = module_importer('openpyxl', 'openpyxl')
 
 def main():
     # Open the excel workbook and get the census sheet

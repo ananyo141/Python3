@@ -1,5 +1,8 @@
 # Use google-spreadsheet to convert spreadsheets into other formats
-import ezsheets, tkinter.filedialog, pyinputplus as pyip, sys, os
+import tkinter.filedialog, sys, os
+from ModuleImporter import module_importer
+ezsheets = module_importer('ezsheets', 'ezsheets')
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 def main():
     toConvert = tkinter.filedialog.askopenfilename(filetypes = [('Spreadsheet', '*.xlsx')])

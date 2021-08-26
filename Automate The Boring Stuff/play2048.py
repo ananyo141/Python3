@@ -1,5 +1,8 @@
 # Use selenium to play the 2048 game
 import tkinter.filedialog, sys, random, time
+from ModuleImporter import module_importer
+selenium = module_importer('selenium', 'selenium')
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 

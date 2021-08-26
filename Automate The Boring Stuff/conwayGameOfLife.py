@@ -1,10 +1,17 @@
 # Conway's Game of Life
-
 import random, time, copy, sys, os
 
 character=input("Enter the character you want to play the game with: ")
 WIDTH = 60
 HEIGHT = 20
+
+def clear():    
+    '''(None) -> None
+    Clear the terminal screen'''
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
 
 # Create a list of list of cells:
 nextCells=[]
@@ -20,7 +27,7 @@ for x in range(WIDTH):
     nextCells.append(column)
 
 while True:     # main program loop
-    os.system("clear")
+    clear()
     currentCells=copy.deepcopy(nextCells)
     # print currentCells according to x-y table
     for y in range(HEIGHT):
@@ -73,9 +80,6 @@ while True:     # main program loop
     try:
         time.sleep(0.2)
     except:
-        os.system("clear")
+        clear()
         print("\n","Thanks for playing the Conway's Game of Life".center(50,'-'))
         sys.exit()
-
-
-

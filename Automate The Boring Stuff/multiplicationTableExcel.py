@@ -1,5 +1,8 @@
 # Take a number from the command line and create NxN multiplication table in xlsx format
-import openpyxl, sys
+import sys
+from ModuleImporter import module_importer
+openpyxl = module_importer('openpyxl', 'openpyxl')
+
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 

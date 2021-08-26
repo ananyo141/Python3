@@ -1,7 +1,6 @@
 # Write a table printer that takes a list of list as argument and prints the nested lists as columns
 # that are left, centre and right justified resp. Also takes an optional argument that specifies the
 # title of the table, by default title should be 'TABLE'.
-
 import sys
 
 def tablePrinter(nestedList,title):

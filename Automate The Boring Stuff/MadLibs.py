@@ -1,8 +1,8 @@
 # MadLibs program that reads text files for ADJECTIVE, NOUN, ADVERB or VERB in the file and 
 # prompt user to fill them in, and save in a new file.
-
-import pyinputplus as pyip
 import tkinter.filedialog
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 # Input the madlibs words from the user
 adj = pyip.inputStr(prompt="Enter the adjective: ")

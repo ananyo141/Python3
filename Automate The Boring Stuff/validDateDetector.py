@@ -1,6 +1,8 @@
 #!python3
 # Write regex that detects dates in a given string and check if the dates are valid or not.
-import re, pyperclip, random, time, sys
+import re, random, time, sys
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 def dateFinder(text):
     '''(str)--->list of list

@@ -1,17 +1,15 @@
 # This script combines the pdfs into a single pdf and uses various features.
-import tkinter.filedialog
-import logging
-import os
+import tkinter.filedialog, logging, os
 from ModuleImporter import module_importer
+
+# import the third-party modules safely
+pypdf2 = module_importer('PyPDF2')
+pyip = module_importer('pyinputplus')
 
 # filename='combinepdf.log'
 logging.basicConfig(level=logging.DEBUG, filemode='w',
                     format='%(asctime)s - %(levelname)s - %(lineno)d - %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
 logging.disable(logging.CRITICAL)
-
-# import the third-party modules safely
-pypdf2 = module_importer('PyPDF2')
-pyip = module_importer('pyinputplus')
 
 def main():
     logging.debug('Starting program execution')

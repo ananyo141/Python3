@@ -1,8 +1,9 @@
 #!python3 
 # Write a multiclipboard program that keeps takes a keyword as cmd/terminal argument and copies 
 # elaborated text into the clipboard.
-
-import sys,pyperclip,pprint
+import sys, pprint
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 clipboard = {'absolutely': "Yes! I'm excited for it!",
  'agree': "Yeah I completely agree with you! Let's do this!",

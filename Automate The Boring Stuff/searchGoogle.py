@@ -1,8 +1,9 @@
 #!python3
 # This program takes user input from the command line and searches the web for the keyword
 # and displays the first 5 search results
-
-import webbrowser, googlesearch, sys
+import webbrowser, sys
+from ModuleImporter import module_importer
+googlesearch = module_importer('googlesearch', 'google')
 
 if len(sys.argv) < 2:
     sys.exit("Usage: <script>.py {keyword to search}")

@@ -1,5 +1,7 @@
 # Make a sandwich maker and display the cost.
-import pyinputplus as pyip
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
+
 orderPrice = 0
 
 print("Welcome to Python Sandwich!".center(100,'*'))
@@ -31,5 +33,3 @@ if confirmation == 'yes':
     print(f"\nYour order has been confirmed! Total order price is Rs.{totalOrderPrice} for {orderQuantity} sandwiches.")
 else:
     print('\nYou cancelled your order')
-
-

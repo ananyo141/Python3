@@ -1,8 +1,9 @@
 #!python3
 # Check the copied text for common typos such as multiple spaces, accidentally repeated words or multiple 
 # exclamation, commas or dots (at the end of sentences).
-
-import re, pyperclip
+import re
+from ModuleImporter import module_importer
+pyperclip = module_importer('pyperclip', 'pyperclip')
 
 def proofReader(text):
     '''(str)--->str

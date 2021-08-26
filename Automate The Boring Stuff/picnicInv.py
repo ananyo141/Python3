@@ -52,4 +52,3 @@ itemTotal=returnItems(guestContribution)
 printItems(itemTotal,'Picnic Items',20,6)
 print("\n\nContributed by: (Don't give apple pie to the ones who didn't pitch in)")
 printItems(guestContribution,'Guests',10,6)
-

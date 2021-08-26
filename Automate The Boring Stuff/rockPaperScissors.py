@@ -1,5 +1,4 @@
 # WAP to create a rock,paper,scissors game.
-
 import random
 
 def roundResult(playerMove,opponentMove):
@@ -75,6 +74,6 @@ def main():
     else:
         print("Thanks for playing with us! Hope you liked it <3")
 
+
 if __name__ == '__main__':
     main()
-

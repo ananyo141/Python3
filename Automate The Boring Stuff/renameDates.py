@@ -1,11 +1,11 @@
 #!python3
-# # Walk the provided directory for all the filenames in directory and subdirectory 
-# to search for filenames with american dates and rename them with European dates.
+# Walk the provided directory and subdirectories to search for filenames with
+# american dates and rename them with European dates.
 # MM-DD-YYYY to DD-MM-YYYY
-
 import tkinter.filedialog, shutil, random, re, os
 from pathlib import Path
-import pyinputplus as pyip
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 dateRegex = re.compile(r'''(
     ((?: 0?[1-9])|10|11|12)     # month

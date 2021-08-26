@@ -1,6 +1,7 @@
 # There is a mistake at the document https://docs.google.com/spreadsheets/u/0/d/1jDZEdvSIh4TmZxccyy0ZXrH-ELlrwq8_YYiZrEOB4jg/htmlview
 # by Al, figure out the row at which he made it.
-import ezsheets
+from ModuleImporter import module_importer
+ezsheets = module_importer('ezsheets', 'ezsheets')
 
 def main():
     try:

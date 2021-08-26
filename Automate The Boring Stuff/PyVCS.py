@@ -1,9 +1,10 @@
 #!python3
 # This Program creates a version control system that backs up and manages the repositories in zip format
-
 import tkinter.filedialog, zipfile, os, time, datetime
-import pyinputplus as pyip
 from pathlib import Path
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
+
 
 def confirmation(prompt):
     '''(str) ---> Bool

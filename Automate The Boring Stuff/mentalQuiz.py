@@ -1,6 +1,7 @@
 # Make a mental math game.
-import pyinputplus as pyip
 import random, time, os
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 operations = ['+','-','/','*']
 numberOfQuestions = 10

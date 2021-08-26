@@ -44,7 +44,3 @@ while True:
             print("You chose not to save the birth date.")
         else:
             print("You didn't enter a valid choice")
-
-
-
-

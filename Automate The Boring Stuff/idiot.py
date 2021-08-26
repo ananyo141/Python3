@@ -1,6 +1,7 @@
 # Write a program that keeps an idiot busy for hours.
-import pyinputplus as pyip
 import random, time
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 prompt = ["Do you want to know how to keep an idiot busy for hours?\n",
           "Do you really wanna know how to keep an idiot busy for hours?\n",

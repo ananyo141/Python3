@@ -3,6 +3,7 @@ import tkinter.filedialog, threading, logging, time, os, sys
 from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
+
 # filename = 'multithreadedXKCD.log'
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')

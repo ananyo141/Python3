@@ -4,6 +4,7 @@ import json, sys, logging, pprint, time
 from ModuleImporter import module_importer
 pyip = module_importer('pyinputplus', 'pyinputplus')
 requests = module_importer('requests', 'requests')
+
 # filename = 'weatherData.log'
 logging.basicConfig(level = logging.DEBUG, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s', 
                     datefmt = '%d/%m/%Y - %I:%M:%S %p', filemode = 'w')

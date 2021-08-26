@@ -1,9 +1,9 @@
 #! python3
 # Creates quizzes with questions and answers in random order, along with the answer key
-
-import pyinputplus as pyip
 import random, tkinter.filedialog
 from pathlib import Path
+from ModuleImporter import module_importer
+pyip = module_importer('pyinputplus', 'pyinputplus')
 
 # Quiz Data
 capitals = {'Alabama': 'Montgomery', 'Alaska': 'Juneau', 'Arizona': 'Phoenix',
