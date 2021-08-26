@@ -8,7 +8,6 @@ def getListStr(list):
     >>>getListStr(['apples','guava','tofu','cat'])
     'apples, guava, tofu, and cat'
     '''
-
                                     ### Note To Debugger ###
     # Removing empty strings in list gave undefined behaviour, empty strings were not stored 
     # with proper indexes, duplicate indexes were found. Maybe this is how python stores empty strings in lists.
@@ -16,36 +15,30 @@ def getListStr(list):
     # empty strings in the first place. 
                                     ### DELETED PREVIOUS OBSOLETE CODE ###
 
-    listAsStr = ''
-    nonEmptyItems = 0
+    # build a list that is devoid of empty strings
+    nonEmptyList = []
     for item in list:
-        if str(item) != '':
-            nonEmptyItems += 1
-
-    print(nonEmptyItems)
-            
-    for index, item in enumerate(list):
-        if str(item) == '':
-            continue
-        listAsStr += str(item)
-        if index == nonEmptyItems - 2:
-            listAsStr += ' and '
-        elif index != len(list) - 1:
-            listAsStr += ', '
+        if item != '':
+            nonEmptyList.append(item)
+    # build a string made from the non-empty list
+    nonEmptyStr = ''
+    for i in range(len(nonEmptyList)):
+        nonEmptyStr += str(nonEmptyList[i])
+        if i < len(nonEmptyList) - 2:
+            nonEmptyStr += ', '
+        elif i < len(nonEmptyList) - 1:     # this is only checked if the first one fails
+            nonEmptyStr += ' and '
     
-    return listAsStr
+    return nonEmptyStr
 
 def main():
     # Default: ['apples', 'guava', 'tofu', 'cat']
-    string=input("Enter the strings('done' to exit): ")
-    stringList=[]
-    while string != 'done':
-        # if len(string) < 1:
-        #     string=input("Enter the strings('done' to exit): ")
-        #     continue
-
+    stringList = []
+    while True:
+        string = input("Enter the strings('done' to exit): ")
+        if string.lower().startswith('done'):
+            break
         stringList.append(string)
-        string=input("Enter the strings('done' to exit): ")
 
     print(getListStr(stringList))
 
