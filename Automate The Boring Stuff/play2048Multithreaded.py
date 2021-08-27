@@ -1,17 +1,13 @@
 # Create multithreaded selenium that plays 2048.
-# Use selenium to play the 2048 game
-import tkinter.filedialog, threading, sys, random, time
+import tkinter.filedialog, concurrent.futures, sys, random, time
 from ModuleImporter import module_importer
 selenium = module_importer('selenium', 'selenium')
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-# Global Variable to keep track of scores
-scores = []
-
-def play2048(gecko_path: str) -> None:
-    '''Creates an instance of Firefox and plays a game of 2048 and saves the score in global 'scores' list'''
+def play2048(gecko_path: str) -> int:
+    '''Creates an instance of Firefox and plays a game of 2048 and returns the score'''
 
     moves = [Keys.UP, Keys.DOWN, Keys.LEFT, Keys.RIGHT]
     browser = webdriver.Firefox(executable_path = gecko_path)
@@ -31,12 +27,10 @@ def play2048(gecko_path: str) -> None:
     if currScoreIndex != -1:
         currentScore = currentScore[:currScoreIndex]
 
-    # wait for the user to see results
-    time.sleep(5)
+    time.sleep(3)   # wait for the user to see results
     browser.quit()
     try:
-        global scores
-        scores.append(int(currentScore))                                                        # try to save score into global variable (from str->int),
+        return int(currentScore)                                                                # try return score by converting str->int,
     except ValueError:                                                                          # if website changes and cannot convert score,
         raise Exception("Error getting the current score! Cannot convert " + currentScore)      # throw exception to update function   
                                                                                                 
@@ -51,18 +45,19 @@ def main():
     except ValueError:
         sys.exit("Expected integer input")
 
-    threads = []
-    for i in range(numGames):
-        playThread = threading.Thread(target = play2048, args = [gecko])
-        playThread.start()
-        threads.append(playThread)
+    # Create separate thread for each game
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        threads = [executor.submit(play2048, gecko) for i in range(numGames)]
 
-    for thread in threads:
-        thread.join()
+    # collect the score that each thread returns
+    scores = [thread.result() for thread in threads]
 
-    print("Thank you for playing 2048")
-    print("Games Played: ", numGames,", Best Score: ", max(scores),
-          ", Average Score: ", sum(scores)/numGames, sep='')
+    # print the result
+    print("\n" + " Thank you for playing 2048 ".center(50, '*'))
+    print(f"Games Played: {numGames} ")
+    print(f"Best Score: {max(scores)}")
+    print(f"Lowest Score: {min(scores)}")
+    print(f"Average Score: {round(sum(scores)/numGames, 2)}\n")
 
 
 if __name__ == '__main__':
