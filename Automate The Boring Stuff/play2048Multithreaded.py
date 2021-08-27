@@ -30,7 +30,7 @@ def play2048(gecko_path: str) -> int:
     time.sleep(3)   # wait for the user to see results
     browser.quit()
     try:
-        return int(currentScore)                                                                # try return score by converting str->int,
+        return int(currentScore)                                                                # try to return score by converting str->int,
     except ValueError:                                                                          # if website changes and cannot convert score,
         raise Exception("Error getting the current score! Cannot convert " + currentScore)      # throw exception to update function   
                                                                                                 
