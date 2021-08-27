@@ -10,10 +10,11 @@ def inputDir():
     '''(NoneType) ---> Str
     Ask the user to enter a directory and validate user input to return the directory path.
     '''
-    while True:
-        chosenDir = tkinter.filedialog.askdirectory()
-        if chosenDir:
-            return os.path.normpath(chosenDir)
+    chosenDir = tkinter.filedialog.askdirectory()
+    if chosenDir:
+        return os.path.normpath(chosenDir)
+    else:
+        sys.exit("No directory chosen.\n")
 
 def organizer(extension, userDir, destinationDir):
     extensionDir = os.path.join(destinationDir, extension.lstrip('.').upper())
