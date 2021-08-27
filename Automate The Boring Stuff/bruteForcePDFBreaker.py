@@ -1,15 +1,10 @@
 # Brute force break the password of user pdf
-import tkinter.filedialog, multiprocessing, sys
+import tkinter.filedialog, multiprocessing, sys, time
 from ModuleImporter import module_importer
 pypdf2 = module_importer('PyPDF2', 'PyPDF2')
 
-passFound = []
-
-def bruteForce(passwords: list, start: int, stop: int, pdfPath: str) -> None:
-    '''Try to decrypt an encrypted pdf and return status in a global variable "Cracked" '''
-    global passFound
-    if passFound:     # return if already cracked
-        return
+def bruteForce(passwords: list, start: int, stop: int, pdfPath: str, maintainer: multiprocessing.Manager) -> None:
+    '''Try to decrypt an encrypted pdf and save password in process manager '''
     encryptedFile = open(pdfPath, 'rb')
     encryptedPdf = pypdf2.PdfFileReader(encryptedFile)
     if not encryptedPdf.isEncrypted:
@@ -17,20 +12,17 @@ def bruteForce(passwords: list, start: int, stop: int, pdfPath: str) -> None:
     
     # check every word, uppercase and lowercase
     for i in range(start, stop):
-        if passFound:
+        if maintainer:
             break
         word = passwords[i].strip()
         print(f'Trying pass: {word}')
         if encryptedPdf.decrypt(word.lower()):
-            print(f'Password cracked: {word.lower()}')
-            # global Cracked
-            passFound.append(word.lower())
-            print(passFound)
+            maintainer['Password'] = word.lower()
             break
         elif encryptedPdf.decrypt(word.upper()):
-            print(f'Password cracked: {word.upper()}')
-            passFound.append(word.upper())
+            maintainer['Password'] = word.upper()
             break
+
     encryptedFile.close()
 
 def main():
@@ -48,25 +40,33 @@ def main():
 
     processes = []
     manager = multiprocessing.Manager()
-    pa = manager.dict()
+    maintainer = manager.dict()
+    start_time = time.time()
     # take start matching from end to tackle non-multiple indexes of 12
     for end in range(len(possiblePass), 0, -12):
         start = end - 12;          
         if start < 0:
             start = 0
 
-        process = multiprocessing.Process(target = bruteForce, args = [possiblePass, start, end, encryptedFile])
+        process = multiprocessing.Process(target = bruteForce, args = [possiblePass, start, end, encryptedFile, maintainer])
         processes.append(process)
         process.start()
 
-    # wait for every process to finish
+    while True:
+        if maintainer:
+            print('\nFound password. Terminating processes...')
+            for process in processes:
+                process.terminate()
+            break
+
+    # join every process in main process
     for process in processes:
         process.join()
 
-    print(passFound)
+    end_time = time.time()
 
-    if passFound:
-        print('Pdf password successfully cracked')
+    if maintainer:
+        print(f"Pdf password cracked '{maintainer['Password']}' in {round(end_time - start_time, 2)} seconds")
     else:
         print('Pdf could not be decrypted')
 
