@@ -26,14 +26,14 @@ def bruteForce(passwords: list, start: int, stop: int, pdfPath: str, maintainer:
     encryptedFile.close()
 
 def main():
-    # Input the dictionary file
+    # Input the possible passwords from text file
     try:
-        possiblePass = tkinter.filedialog.askopenfile(title = 'Input dictionary file',
+        possiblePass = tkinter.filedialog.askopenfile(title = 'Enter Possible Passwords File',
                         filetypes = [('Text Files','*.txt')]).readlines()
     except AttributeError:
         sys.exit('Possible list of passwords not given')
     # Input the encrypted file
-    encryptedFile = tkinter.filedialog.askopenfilename(title = 'Input encrypted file',
+    encryptedFile = tkinter.filedialog.askopenfilename(title = 'Input Encrypted File',
                         filetypes = [('PDF Files','*.pdf')])
     if not encryptedFile:
         sys.exit('Encrypted pdf not specified')
@@ -44,16 +44,17 @@ def main():
     manager = multiprocessing.Manager()   # processes manager (shared variable: dict) that,
     maintainer = manager.dict()           # communicates status between the processes.
     start_time = time.time()              # mark start time
-    # Create 12 processes, each tackling len(possiblePass) / 12 passwords
+    # Create 12 processes, each tackling len(possiblePass) / 12 passwords, +1 for remaining words.
     NUM_PROCESSES = 12                    # constant processess to be executed
     passwordsPerProcess = int(len(possiblePass) / NUM_PROCESSES)
 
     for start in range(0, len(possiblePass) + 1, passwordsPerProcess):
-        end = start + passwordsPerProcess;          
+        end = start + passwordsPerProcess          
         if end > len(possiblePass):       # if end out of bounds,
             end = len(possiblePass)       # reset to last valid index
 
-        process = multiprocessing.Process(target = bruteForce, args = [possiblePass, start, end, encryptedFile, maintainer])
+        process = multiprocessing.Process(target = bruteForce, 
+                                        args = [possiblePass, start, end, encryptedFile, maintainer])
         processes.append(process)
         process.start()
 
