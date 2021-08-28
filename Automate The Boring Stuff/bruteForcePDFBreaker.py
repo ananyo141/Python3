@@ -42,13 +42,9 @@ def main():
     manager = multiprocessing.Manager()
     maintainer = manager.dict()
     start_time = time.time()
-    # take start matching from end to tackle non-multiple indexes of 12
-    for end in range(len(possiblePass), 0, -12):
-        # stop if password found
-        if maintainer:
-            print('\nPassword found. Terminating...')
-            break
-        start = end - 12;          
+    # take start matching from end to tackle non-multiple indexes of (len(possiblePass) / 12)
+    for end in range(len(possiblePass), 0, -(int(len(possiblePass) / 12))):
+        start = end - (int(len(possiblePass) / 12));          
         if start < 0:
             start = 0
 
@@ -63,7 +59,7 @@ def main():
     end_time = time.time()
 
     if maintainer:
-        print(f"Pdf password cracked '{maintainer['Password']}' in {round(end_time - start_time, 2)} seconds")
+        print(f"\nPdf password cracked '{maintainer['Password']}' in {round(end_time - start_time, 2)} seconds")
     else:
         print('Pdf could not be decrypted')
 
