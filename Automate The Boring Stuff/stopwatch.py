@@ -7,9 +7,10 @@ def main():
     print("Usage: Press <Enter>: Start a new lap\n"
                 "Type 'exit': to stop")
     
-    lapBuffer = []
+    lapBuffer = []      # contain lap details
     prev_lap = None
     while True:
+        # manage input
         command = input()
         if command.lower() == "exit":
             break
@@ -21,7 +22,7 @@ def main():
         counter += 1
         if counter == 1:
             start_time = time.time()
-            print(f"Started counter at {time.ctime(start_time)}, Lap: {counter}")
+            print(f"Started counter at {time.ctime(start_time)}, Lap: # {counter}")
             continue
         # Setup a new lap
         new_lap = time.time()
@@ -30,13 +31,14 @@ def main():
         else:
             lapTime = round(new_lap - prev_lap, 3)
             
-        print(f"Lap # %-4d: %6.3f second(s) " % (counter, lapTime), end = '')
-
+        # print each lap details
+        print(f"Lap # %-4d: %7.3f seconds (%5.2f) " % (counter, new_lap - start_time, lapTime), end='')
         lapBuffer.append(lapTime)
-
         prev_lap = new_lap
     
-    if counter == 0:
+    # quit if not enough data to calculate statistics
+    if counter <= 1:
+        print("Not enough data (laps)")
         quit()
 
     print(f"\nTotal time: {round(prev_lap - start_time, 3)} seconds with {counter} laps")
