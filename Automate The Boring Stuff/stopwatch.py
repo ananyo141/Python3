@@ -4,7 +4,8 @@ import time
 
 def main():
     counter = 0
-    print("Usage: Press <Enter>: Start a new lap")
+    print("Usage: Press <Enter>: Start a new lap\n"
+                "Type 'exit': to stop")
     
     lapBuffer = []
     prev_lap = None
@@ -29,7 +30,8 @@ def main():
         else:
             lapTime = round(new_lap - prev_lap, 3)
             
-        print(f"Lap {counter}: {lapTime} seconds ", end = '')
+        print(f"Lap # %-4d: %6.3f second(s) " % (counter, lapTime), end = '')
+
         lapBuffer.append(lapTime)
 
         prev_lap = new_lap
@@ -38,7 +40,8 @@ def main():
         quit()
 
     print(f"\nTotal time: {round(prev_lap - start_time, 3)} seconds with {counter} laps")
-    print(f"Best lap: {min(lapBuffer)},  Slowest Lap: {max(lapBuffer)},   Average Lap: {round(sum(lapBuffer)/len(lapBuffer), 3)}")
+    print(f"Best lap: {min(lapBuffer)},  Slowest Lap: {max(lapBuffer)},   "
+          f"Average Lap: {round(sum(lapBuffer)/len(lapBuffer), 3)}")
 
 if __name__ == '__main__':
     main()
