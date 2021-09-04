@@ -19,13 +19,15 @@ from ModuleImporter import module_importer
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
 
+# filename = "updateWebsites.log", filemode = "w"
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
-                    datefmt = "%d/%m/%Y %I:%M:%S %p", filename = "updateWebsites.log", filemode = "w")
+                    datefmt = "%d/%m/%Y %I:%M:%S %p")
+logging.disable(logging.CRITICAL)
 
-# create classes and methods for each website
+# Class for LeftHandedToons
 class LeftHandedToons:
     latestComicNum = None
-    # User-Agent to make script requests emulate an actual browser
+    # User-Agent to make script-requests emulate an actual browser
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
     }
@@ -38,7 +40,7 @@ class LeftHandedToons:
             LeftHandedToons.fetchLatestComicNum()
 
     def downloadImage(self, imageUrl):
-        ''' Download the given imageUrl in the object directory '''
+        ''' Download the given imageUrl in the object save directory '''
 
         try:
             image = requests.get(imageUrl, headers = LeftHandedToons.headers)
@@ -47,7 +49,7 @@ class LeftHandedToons:
             print(f"Error saving comic {imageUrl}");                                     logging.error(f"{imageUrl = }\n{pprint.pformat(str(exc))}")
             return
 
-        imageFileName = os.path.join(self.saveDir, os.path.basename(imageUrl));                logging.debug(f"{imageFileName = }")
+        imageFileName = os.path.join(self.saveDir, os.path.basename(imageUrl));          logging.debug(f"{imageFileName = }")
         with open(imageFileName, 'wb') as imageFile:
             for chunk in image.iter_content(1000000):
                 imageFile.write(chunk)
@@ -68,7 +70,7 @@ class LeftHandedToons:
 
     # Download comics 
     def downloadComics(self, **kwargs):
-        '''Download comic to the given downloadDir according to given arguments
+        '''Download comic to object save directory according to given arguments
         with threading support
 
         Support optional keyword arguments:
@@ -102,8 +104,8 @@ class LeftHandedToons:
     def updateDirectory(self):
         ''' Update the object directory for any new comics by going reverse order from the latest comic '''
 
-        start = LeftHandedToons.latestComicNum
-        stop = 1
+        start = LeftHandedToons.latestComicNum      # latest comic number
+        stop = 1        # earliest comic in the website
 
         for pageNum, imgLink in LeftHandedToons.getLatestComicLinks(start, stop, step = -1):
             imageName = os.path.basename(imgLink)
@@ -115,6 +117,29 @@ class LeftHandedToons:
 
         print("Directory successfully updated with latest comics")
 
+    @classmethod
+    def getLatestComicLinks(cls, start, stop, **kwargs):
+        ''' Generate the latest comic numbers and their links starting from 'start' and end at 'stop' 
+        Support optional keyword 'step' (default 1)'''
+
+        step = kwargs.get('step', 1)
+
+        for pageNum in range(start, stop, step):
+            pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
+            try:
+                page = requests.get(pageLink, headers = LeftHandedToons.headers)
+                page.raise_for_status()
+            except Exception as exc:
+                print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }\n{pprint.pformat(str(exc))}")
+                continue
+            pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
+            try:
+                imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
+            except IndexError as exc:
+                print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
+                continue
+
+            yield pageNum, imgLink
 
     @classmethod
     def fetchLatestComicNum(cls):
@@ -137,38 +162,23 @@ class LeftHandedToons:
         # update class attribute
         cls.latestComicNum = latestComicNum
 
-    @classmethod
-    def getLatestComicLinks(cls, start, stop, **kwargs):
 
-        step = kwargs.get('step', 1)
-
-        for pageNum in range(start, stop, step):
-            pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
-            try:
-                page = requests.get(pageLink, headers = LeftHandedToons.headers)
-                page.raise_for_status()
-            except Exception as exc:
-                print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }\n{pprint.pformat(str(exc))}")
-                continue
-            pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
-            try:
-                imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
-            except IndexError as exc:
-                print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
-                continue
-
-            yield pageNum, imgLink
-
-
-
+# Driver function
 def main():
-    directory = tkinter.filedialog.askdirectory()
+    directory = tkinter.filedialog.askdirectory()  # enter user directory
     if not directory:
         sys.exit("No directory chosen")
-    directory = os.path.normpath(directory)     # make path windows-like in windows
+    directory = os.path.normpath(directory)    # make path windows-like in windows
 
-    LHTDownloader = LeftHandedToons(directory)
-    LHTDownloader.updateDirectory()
+    LHTDownloader = LeftHandedToons(directory) # make LHT Object
+
+    choice = input("Do you want to download or update your collection?: ")
+    if choice.lower() == 'download':
+        LHTDownloader.downloadComics()
+    elif choice.lower() == 'update':
+        LHTDownloader.updateDirectory()
+    else:
+        print("Unknown command")
 
 
 if __name__ == '__main__':
