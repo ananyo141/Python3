@@ -13,13 +13,13 @@
 # http://www.happletea.com/     # not responsive right now
 
 
-import tkinter.filedialog, threading, logging, pprint, sys, os
+import tkinter.filedialog, threading, logging, pprint, time, sys, os
 from ModuleImporter import module_importer
 
 requests = module_importer('requests', 'requests')
 bs4 = module_importer('bs4', 'beautifulsoup4')
 
-logging.basicConfig(level = logging.ERROR, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
+logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = "%d/%m/%Y %I:%M:%S %p", filename = "updateWebsites.log", filemode = "w")
 
 headers = {
@@ -27,7 +27,6 @@ headers = {
 }
 
 # create classes and methods for each website
-
 class LeftHandedToons:
     latestComicNum = None
 
@@ -54,29 +53,29 @@ class LeftHandedToons:
             saveDir = os.path.join(downloadDir, 'LeftHandedToons')
             os.makedirs(saveDir, exist_ok = True)
             for pageNum in range(start, stop):
-                pageLink = f"http://www.lefthandedtoons.com/{pageNum}/";                        logging.info(f"{start = }, {stop = }")
+                pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
                 try:
                     page = requests.get(pageLink, headers = headers)
-                    page.raise_for_status();                                            logging.warning(f"{page.status_code = }")
+                    page.raise_for_status()
                 except Exception as exc:
-                    print(f"Unable to download comic #{pageNum}");                       logging.error(f"{pageLink = }\n{pprint.pformat(str(exc))}")
+                    print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }, {page.status_code = }\n{pprint.pformat(str(exc))}")
                     continue
                 pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
                 try:
-                    imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src');        logging.warning(f"{imgLink = }")
-                except IndexError:
-                    print(f"Unable to find image for comic #{pageNum}");                       logging.error(f"{pageNum = }")
+                    imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
+                except IndexError as exc:
+                    print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
                     continue
-                print(f"Downloading {os.path.basename(imgLink)}...")
+                print(f"Downloading Comic #{pageNum}: {os.path.basename(imgLink)}...")
                 # download image
                 try:
-                    image = requests.get(imgLink, headers = headers);                           logging.warning(f"{image.status_code = }")
+                    image = requests.get(imgLink, headers = headers)
                     image.raise_for_status()
                 except Exception as exc:
-                    print(f"Error saving comic #{pageNum}");                       logging.error(f"{pageLink = }\n{pprint.pformat(str(exc))}")
+                    print(f"Error saving comic #{pageNum}");                                     logging.error(f"{imgLink = }, {image.status_code = }\n{pprint.pformat(str(exc))}")
                     continue
 
-                imageFileName = os.path.join(saveDir, os.path.basename(imgLink))
+                imageFileName = os.path.join(saveDir, os.path.basename(imgLink));                logging.debug(f"{imageFileName = }")
                 with open(imageFileName, 'wb') as imageFile:
                     for chunk in image.iter_content(1000000):
                         imageFile.write(chunk)
@@ -89,12 +88,14 @@ class LeftHandedToons:
         stopComic  = kwargs.get('endComic', LeftHandedToons.latestComicNum + 1)  # since stop is non-inclusive
 
         comicPerThread = 10
+        start_time = time.time()
         threads = []    # thread buffer
         for start in range(startComic, stopComic, comicPerThread):
             stop = start + comicPerThread
             if stop > stopComic:
                 stop = stopComic
 
+            logging.debug(f'{start = }, {stop = }')
             downloadThread = threading.Thread(target = downloadComicSq, args = [downloadDir, start, stop])
             threads.append(downloadThread)
             downloadThread.start()
@@ -102,17 +103,19 @@ class LeftHandedToons:
         # wait for downloads
         for thread in threads:
             thread.join()
+        end_time = time.time()
+        print(f"Download finished in {end_time - start_time} seconds")
 
     @classmethod
     def fetchLatestComicNum(cls):
         '''
-        Update the latest comic number in the website and store in class attribute
+        Update the latest comic number in the website and store in 'latestComicNum' class attribute
         '''
         try:
             mainPage = requests.get('http://www.lefthandedtoons.com/', headers = headers)
             mainPage.raise_for_status()
         except Exception as exc:
-            raise Exception('Error connecting with lefthandedtoons');                               logging.error(f'{str(exc) = }')
+            raise Exception('Error connecting with lefthandedtoons');                             logging.error(f'{str(exc) = }')
 
         mainPageSoup = bs4.BeautifulSoup(mainPage.text, 'lxml')
         try:
