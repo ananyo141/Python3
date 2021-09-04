@@ -13,8 +13,11 @@
 # http://www.happletea.com/     # not responsive right now
 
 
-import tkinter.filedialog, threading, requests, bs4, logging, sys, os
+import tkinter.filedialog, threading, logging, sys, os
 from ModuleImporter import module_importer
+
+requests = module_importer('requests', 'requests')
+bs4 = module_importer('bs4', 'beautifulsoup4')
 
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = "%d/%m/%Y %I:%M:%S %p", filename = "updateWebsites.log", filemode = "w")
@@ -74,17 +77,27 @@ class LeftHandedToons:
                     for chunk in image.iter_content(1000000):
                         imageFile.write(chunk)
 
+                self.comicDownloaded += 1
+
 
         # Initialize start and stop
         startComic = kwargs.get('startComic', 1)   # comic range starts from 1
         stopComic  = kwargs.get('endComic', LeftHandedToons.latestComicNum + 1)  # since stop is non-inclusive
 
         comicPerThread = 10
+        threads = []    # thread buffer
         for start in range(startComic, stopComic, comicPerThread):
             stop = start + comicPerThread
             if stop > stopComic:
                 stop = stopComic
 
+            downloadThread = threading.Thread(target = downloadComicSq, args = [downloadDir, start, stop])
+            threads.append(downloadThread)
+            downloadThread.start()
+
+        # wait for downloads
+        for thread in threads:
+            thread.join()
 
     @classmethod
     def fetchLatestComicNum(cls):
