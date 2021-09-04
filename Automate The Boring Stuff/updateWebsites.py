@@ -57,7 +57,7 @@ class LeftHandedToons:
         self.comicDownloaded += 1
 
 
-    # nested target function
+    # Target (base) function
     def downloadComicSq(self, start, stop):
         ''' Download comics sequentially, this is going to be the target function for threading '''
 
@@ -105,7 +105,7 @@ class LeftHandedToons:
         ''' Update the object directory for any new comics by going reverse order from the latest comic '''
 
         start = LeftHandedToons.latestComicNum      # latest comic number
-        stop = 1        # earliest comic in the website
+        stop = 0        # earliest comic in the website is 1 (stop is non-inclusive)
 
         for pageNum, imgLink in LeftHandedToons.getLatestComicLinks(start, stop, step = -1):
             imageName = os.path.basename(imgLink)
