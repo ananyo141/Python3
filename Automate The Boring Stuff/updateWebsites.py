@@ -102,11 +102,18 @@ class LeftHandedToons:
     def updateDirectory(self):
         ''' Update the object directory for any new comics by going reverse order from the latest comic '''
 
-        updated = False
+        start = LeftHandedToons.latestComicNum
+        stop = 1
 
-        # for i in range(LeftHandedToons.latestComicNum, 1, -1):
-        #     pageLink = 
+        for pageNum, imgLink in LeftHandedToons.getLatestComicLinks(start, stop, step = -1):
+            imageName = os.path.basename(imgLink)
+            if os.path.exists(os.path.join(self.saveDir, imageName)):
+                break
 
+            print("Found New Comic #%-4d: %s..." % (pageNum, imageName))
+            self.downloadImage(imgLink)
+
+        print("Directory successfully updated with latest comics")
 
 
     @classmethod
@@ -131,8 +138,11 @@ class LeftHandedToons:
         cls.latestComicNum = latestComicNum
 
     @classmethod
-    def getLatestComicLinks(cls, start, stop):
-        for pageNum in range(start, stop):
+    def getLatestComicLinks(cls, start, stop, **kwargs):
+
+        step = kwargs.get('step', 1)
+
+        for pageNum in range(start, stop, step):
             pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
             try:
                 page = requests.get(pageLink, headers = LeftHandedToons.headers)
@@ -158,7 +168,7 @@ def main():
     directory = os.path.normpath(directory)     # make path windows-like in windows
 
     LHTDownloader = LeftHandedToons(directory)
-    LHTDownloader.downloadComics()
+    LHTDownloader.updateDirectory()
 
 
 if __name__ == '__main__':
