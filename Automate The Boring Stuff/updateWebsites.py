@@ -22,22 +22,70 @@ bs4 = module_importer('bs4', 'beautifulsoup4')
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = "%d/%m/%Y %I:%M:%S %p", filename = "updateWebsites.log", filemode = "w")
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
-}
-
 # create classes and methods for each website
 class LeftHandedToons:
     latestComicNum = None
+    # User-Agent to make script requests emulate an actual browser
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+    }
 
-    def __init__(self):
+    def __init__(self, downloadDir):
         self.comicDownloaded = 0
+        self.saveDir = os.path.join(downloadDir, 'LeftHandedToons')
         # initialize once during creation of first object instance
         if LeftHandedToons.latestComicNum == None:
             LeftHandedToons.fetchLatestComicNum()
 
+    def downloadImage(self, imageUrl):
+        ''' Download the given imageUrl in the object directory '''
+
+        try:
+            image = requests.get(imageUrl, headers = LeftHandedToons.headers)
+            image.raise_for_status()
+        except Exception as exc:
+            print(f"Error saving comic {imageUrl}");                                     logging.error(f"{imageUrl = }, {image.status_code = }\n{pprint.pformat(str(exc))}")
+            return
+
+        imageFileName = os.path.join(self.saveDir, os.path.basename(imageUrl));                logging.debug(f"{imageFileName = }")
+        with open(imageFileName, 'wb') as imageFile:
+            for chunk in image.iter_content(1000000):
+                imageFile.write(chunk)
+
+        self.comicDownloaded += 1
+
+    @classmethod
+    def getLatestComicLinks(cls, start, stop):
+        for pageNum in range(start, stop):
+            pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
+            try:
+                page = requests.get(pageLink, headers = LeftHandedToons.headers)
+                page.raise_for_status()
+            except Exception as exc:
+                print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }, {page.status_code = }\n{pprint.pformat(str(exc))}")
+                continue
+            pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
+            try:
+                imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
+            except IndexError as exc:
+                print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
+                continue
+
+            yield pageNum, imgLink
+
+    # nested target function
+    def downloadComicSq(self, start, stop):
+        ''' Download comics sequentially, this is going to be the target function for threading '''
+
+        os.makedirs(self.saveDir, exist_ok = True)
+        for pageNum, imgLink in LeftHandedToons.getLatestComicLinks(start, stop):
+            
+            print("Downloading Comic #%-4d: %s..." % (pageNum, os.path.basename(imgLink)))
+            # download image
+            self.downloadImage(imgLink)
+
     # Download comics 
-    def downloadComics(self, downloadDir, **kwargs):
+    def downloadComics(self, **kwargs):
         '''Download comic to the given downloadDir according to given arguments
         with threading support
 
@@ -45,43 +93,6 @@ class LeftHandedToons:
         startComic = (1 by default), 
         endComic = (latestComicNum + 1 by default)
         '''
-
-        # nested target function
-        def downloadComicSq(downloadDir, start, stop):
-            ''' Download comics sequentially, this is going to be the target function for threading '''
-
-            saveDir = os.path.join(downloadDir, 'LeftHandedToons')
-            os.makedirs(saveDir, exist_ok = True)
-            for pageNum in range(start, stop):
-                pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
-                try:
-                    page = requests.get(pageLink, headers = headers)
-                    page.raise_for_status()
-                except Exception as exc:
-                    print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }, {page.status_code = }\n{pprint.pformat(str(exc))}")
-                    continue
-                pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
-                try:
-                    imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
-                except IndexError as exc:
-                    print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
-                    continue
-                print(f"Downloading Comic #{pageNum}: {os.path.basename(imgLink)}...")
-                # download image
-                try:
-                    image = requests.get(imgLink, headers = headers)
-                    image.raise_for_status()
-                except Exception as exc:
-                    print(f"Error saving comic #{pageNum}");                                     logging.error(f"{imgLink = }, {image.status_code = }\n{pprint.pformat(str(exc))}")
-                    continue
-
-                imageFileName = os.path.join(saveDir, os.path.basename(imgLink));                logging.debug(f"{imageFileName = }")
-                with open(imageFileName, 'wb') as imageFile:
-                    for chunk in image.iter_content(1000000):
-                        imageFile.write(chunk)
-
-                self.comicDownloaded += 1
-
 
         # Initialize start and stop
         startComic = kwargs.get('startComic', 1)   # comic range starts from 1
@@ -96,7 +107,7 @@ class LeftHandedToons:
                 stop = stopComic
 
             logging.debug(f'{start = }, {stop = }')
-            downloadThread = threading.Thread(target = downloadComicSq, args = [downloadDir, start, stop])
+            downloadThread = threading.Thread(target = self.downloadComicSq, args = [start, stop])
             threads.append(downloadThread)
             downloadThread.start()
 
@@ -104,15 +115,24 @@ class LeftHandedToons:
         for thread in threads:
             thread.join()
         end_time = time.time()
-        print(f"Download finished in {end_time - start_time} seconds")
+        print("Download finished in %.2f seconds" % (end_time - start_time))
+
+    def updateDirectory(self):
+        ''' Update the object directory for any new comics by going reverse order from the latest comic '''
+
+        updated = False
+
+        # for i in range(LeftHandedToons.latestComicNum, 1, -1):
+        #     pageLink = 
+
+
 
     @classmethod
     def fetchLatestComicNum(cls):
-        '''
-        Update the latest comic number in the website and store in 'latestComicNum' class attribute
-        '''
+        ''' Update the latest comic number in the website and store in 'latestComicNum' class attribute '''
+
         try:
-            mainPage = requests.get('http://www.lefthandedtoons.com/', headers = headers)
+            mainPage = requests.get('http://www.lefthandedtoons.com/', headers = LeftHandedToons.headers)
             mainPage.raise_for_status()
         except Exception as exc:
             raise Exception('Error connecting with lefthandedtoons');                             logging.error(f'{str(exc) = }')
@@ -129,6 +149,15 @@ class LeftHandedToons:
         cls.latestComicNum = latestComicNum
 
 
-directory = '/mnt/0FBF0B0B0FBF0B0B/betaCode/update'
-downloader = LeftHandedToons()
-downloader.downloadComics(directory)
+def main():
+    directory = tkinter.filedialog.askdirectory()
+    if not directory:
+        sys.exit("No directory chosen")
+    directory = os.path.normpath(directory)     # make path windows-like in windows
+
+    LHTDownloader = LeftHandedToons(directory)
+    LHTDownloader.downloadComics()
+
+
+if __name__ == '__main__':
+    main()
