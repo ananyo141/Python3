@@ -44,7 +44,7 @@ class LeftHandedToons:
             image = requests.get(imageUrl, headers = LeftHandedToons.headers)
             image.raise_for_status()
         except Exception as exc:
-            print(f"Error saving comic {imageUrl}");                                     logging.error(f"{imageUrl = }, {image.status_code = }\n{pprint.pformat(str(exc))}")
+            print(f"Error saving comic {imageUrl}");                                     logging.error(f"{imageUrl = }\n{pprint.pformat(str(exc))}")
             return
 
         imageFileName = os.path.join(self.saveDir, os.path.basename(imageUrl));                logging.debug(f"{imageFileName = }")
@@ -54,24 +54,6 @@ class LeftHandedToons:
 
         self.comicDownloaded += 1
 
-    @classmethod
-    def getLatestComicLinks(cls, start, stop):
-        for pageNum in range(start, stop):
-            pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
-            try:
-                page = requests.get(pageLink, headers = LeftHandedToons.headers)
-                page.raise_for_status()
-            except Exception as exc:
-                print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }, {page.status_code = }\n{pprint.pformat(str(exc))}")
-                continue
-            pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
-            try:
-                imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
-            except IndexError as exc:
-                print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
-                continue
-
-            yield pageNum, imgLink
 
     # nested target function
     def downloadComicSq(self, start, stop):
@@ -147,6 +129,26 @@ class LeftHandedToons:
 
         # update class attribute
         cls.latestComicNum = latestComicNum
+
+    @classmethod
+    def getLatestComicLinks(cls, start, stop):
+        for pageNum in range(start, stop):
+            pageLink = f"http://www.lefthandedtoons.com/{pageNum}/"
+            try:
+                page = requests.get(pageLink, headers = LeftHandedToons.headers)
+                page.raise_for_status()
+            except Exception as exc:
+                print(f"Unable to download comic #{pageNum}");                               logging.error(f"{pageLink = }\n{pprint.pformat(str(exc))}")
+                continue
+            pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
+            try:
+                imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
+            except IndexError as exc:
+                print(f"Unable to find image for comic #{pageNum}");                         logging.error(f"{imgLink = }, {pageNum = }\n{pprint.pformat(str(exc))}")
+                continue
+
+            yield pageNum, imgLink
+
 
 
 def main():
