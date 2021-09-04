@@ -15,6 +15,7 @@
 
 import tkinter.filedialog, threading, requests, bs4, logging, sys, os
 from ModuleImporter import module_importer
+
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(lineno)d - %(message)s",
                     datefmt = "%d/%m/%Y %I:%M:%S %p", filename = "updateWebsites.log", filemode = "w")
 
@@ -28,25 +29,67 @@ class LeftHandedToons:
     latestComicNum = 0
 
     def __init__(self):
-        pass
+        self.comicDownloaded = 0
 
     # Download comics 
     def downloadComic(self, downloadDir, **kwargs):
         '''Download comic to the given downloadDir according to given arguments
+        with threading support
+
         Support optional keyword arguments:
-        startComic = (1 by default) 
-        endComic = (latestComicNum by default)
+        startComic = (1 by default), 
+        endComic = (latestComicNum + 1 by default)
         '''
 
+        # nested target function
+        def downloadComicSq(downloadDir, start, stop):
+            ''' Download comics sequentially, this is going to be the target function for threading '''
+
+            saveDir = os.path.join(downloadDir, 'LeftHandedToons')
+            os.makedirs(saveDir, exist_ok = True)
+            for pageNum in range(start, stop):
+                try:
+                    page = requests.get(f"http://www.lefthandedtoons.com/{pageNum}/", headers = headers)
+                    page.raise_for_status()
+                except Exception as exc:
+                    print(f"Unable to download comic #{pageNum}");                       logging.error(f"{pageNum = }\n{str(exc)}")
+                    continue
+                pageSoup = bs4.BeautifulSoup(page.text, 'lxml')
+                try:
+                    imgLink = pageSoup.select('#comicwrap > div.comicdata > img')[0].get('src')
+                except IndexError:
+                    print(f"Unable to find image for comic #{pageNum}");                       logging.error(f"{pageNum = }")
+                    continue
+                
+                # download image
+                try:
+                    image = requests.get(imgLink, headers = headers)
+                    image.raise_for_status()
+                except Exception as exc:
+                    print(f"Error saving comic #{pageNum}");                       logging.error(f"{pageNum = }\n{str(exc)}")
+                    continue
+
+                imageFileName = os.path.join(saveDir, os.path.basename(imgLink))
+                with open(imageFileName, 'wb') as imageFile:
+                    for chunk in image.iter_content(1000000):
+                        imageFile.write(chunk)
+
+
         # Initialize start and stop
-        start = kwargs.get('start', 1)   # comic range starts from 1
-        stop = kwargs.get('stop', LeftHandedToons.latestComicNum + 1)  # since stop is non-inclusive
+        startComic = kwargs.get('startComic', 1)   # comic range starts from 1
+        stopComic  = kwargs.get('endComic', LeftHandedToons.latestComicNum + 1)  # since stop is non-inclusive
+
+        comicPerThread = 10
+        for start in range(startComic, stopComic, comicPerThread):
+            stop = start + comicPerThread
+            if stop > stopComic:
+                stop = stopComic
 
 
     @classmethod
-    def updateLatestComicNum(cls):
+    def fetchLatestComicNum(cls):
         '''
-        Find the latest comic number in the website
+        Update the latest comic number in the website and store in class attribute
         '''
         try:
             mainPage = requests.get('http://www.lefthandedtoons.com/', headers = headers)
@@ -66,5 +109,5 @@ class LeftHandedToons:
         cls.latestComicNum = latestComicNum
 
 
-LeftHandedToons.updateLatestComicNum()
+# LeftHandedToons.updateLatestComicNum()
 print(LeftHandedToons.latestComicNum)
