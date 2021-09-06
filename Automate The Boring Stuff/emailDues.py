@@ -7,9 +7,9 @@ openpyxl = module_importer('openpyxl', 'openpyxl')
 pyip = module_importer('pyinputplus', 'pyinputplus')
 
 def sendEmail(sender, recipient, **kwargs):
-    ''' Send email from sender email address to recipient email address 
+    ''' Send email from sender email address to recipient email address and return status
     Supported keyword arguments:
-    password, subject, content for respective purposes (each set to None by default '''
+    password, subject, content for respective purposes (each set to None by default) '''
     password = kwargs.get('password', None)
     subject = kwargs.get('subject', None)
     content = kwargs.get('content', None)
@@ -32,13 +32,8 @@ def sendEmail(sender, recipient, **kwargs):
     return status
 
 
-# TODO: Ask the user for membership file  
-# TODO: Read the file for all the members who have not paid
-# TODO: send customized messages for them
-
-
-
 def main():
+    # Ask the user for membership file  
     membershipFile = tkinter.filedialog.askopenfilename(filetypes = [('Excel Spreadsheet', '*.xlsx')])
     senderEmail = pyip.inputEmail("Enter sender email: ")
     password = pyip.inputPassword(f"Enter password for {senderEmail}: ")
