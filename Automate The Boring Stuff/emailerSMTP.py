@@ -6,7 +6,7 @@
 #                                                                                    #  
 ######################################################################################                                                                                      
 
-# Send an email with the help of Selenium
+# Send an email with SMTPLib
 import tkinter.filedialog, smtplib, textwrap, datetime, sys, os
 from ModuleImporter import module_importer
 
@@ -60,13 +60,17 @@ def main():
         sys.exit(f"Invalid email or password provided. Draft saved at {os.getcwd()}\n"
             "Tip: Make sure you have 'unsecured app access' enabled in your Gmail settings")
 
-    smtpObj.sendmail(sender, recipient, f"Subject: {subject}\n{content}")
+    sendMailStatus = smtpObj.sendmail(sender, recipient, f"Subject: {subject}\n{content}")
+    if sendMailStatus != {}:
+        print("There was a problem sending the email")
 
-    choice = pyip.inputYesNo(prompt = "Email sent. Do you want to delete the draft?: ")
-    if choice.lower() == "yes":
-        os.unlink('draft.txt')
     else:
-        print("Draft saved at '%s'\n" % (os.getcwd()))
+        choice = pyip.inputYesNo(prompt = "Email sent. Do you want to delete the draft?: ")
+        if choice.lower() == "yes":
+            os.unlink('draft.txt')
+            sys.exit()
+
+    print("Draft saved at '%s'\n" % (os.getcwd()))
 
     smtpObj.quit() # ending connection
 
