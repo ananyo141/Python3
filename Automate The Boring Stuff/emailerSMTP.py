@@ -7,7 +7,7 @@
 ######################################################################################                                                                                      
 
 # Send an email with the help of Selenium
-import tkinter.filedialog, smtplib, textwrap, datetime, sys
+import tkinter.filedialog, smtplib, textwrap, datetime, sys, os
 from ModuleImporter import module_importer
 
 pyip = module_importer('pyinputplus', 'pyinputplus')
@@ -23,7 +23,8 @@ def main():
     recipient = pyip.inputEmail(prompt = "Enter Recipient Email: ")
     # ask for email subject and body (give option to select a text file)
     subject = input("Enter subject: ")
-    choice = pyip.inputMenu(['Enter text by typing', 'Enter from a text file'], prompt = 'Email Body:\n', numbered = True)
+    choice = pyip.inputMenu(['Enter text by typing', 'Enter from a text file'],
+                             prompt = 'Email Body:\n', numbered = True)
     if choice.lower() == 'enter text by typing':
         content = input("Enter the body of email:\n")
     elif choice.lower() == 'enter from a text file':
@@ -44,23 +45,30 @@ def main():
         draft.write(f'From: {sender}'.rjust(100) + '\n')
         draft.write(timestamp().rjust(100))
 
-    # TODO: fill in the information and send the email and close connection
+    # fill in the information and send the email and close connection
     # start connection
     try:
         smtpObj = smtplib.SMTP('smtp.gmail.com', 587)
     except smtplib.socket.gaierror:
-        sys.exit("Unable to connect to gmail smtp serve")
+        sys.exit("Unable to connect to gmail smtp server")
     
-    smtpObj.ehlo()  # say hello to the server (identify script)
-    smtpObj.starttls() # start encryption mode
+    smtpObj.ehlo()        # say hello to the server (identify script)
+    smtpObj.starttls()    # start encryption mode
     try:
         smtpObj.login(sender, password)
     except smtplib.SMTPAuthenticationError:
-        sys.exit("Invalid email or password provided\n"
-            "Tip: Make sure you have unsecured app access enabled in your Gmail settings")
+        sys.exit(f"Invalid email or password provided. Draft saved at {os.getcwd()}\n"
+            "Tip: Make sure you have 'unsecured app access' enabled in your Gmail settings")
 
-    smtpObj.sendmail(sender, recipient, f"{subject}\n{content}")
-    smtpObj.quit()
+    smtpObj.sendmail(sender, recipient, f"Subject: {subject}\n{content}")
+
+    choice = pyip.inputYesNo(prompt = "Email sent. Do you want to delete the draft?: ")
+    if choice.lower() == "yes":
+        os.unlink('draft.txt')
+    else:
+        print("Draft saved at '%s'\n" % (os.getcwd()))
+
+    smtpObj.quit() # ending connection
 
 
 if  __name__ == '__main__':
