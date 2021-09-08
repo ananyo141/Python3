@@ -6,25 +6,20 @@ from ModuleImporter import module_importer
 openpyxl = module_importer('openpyxl', 'openpyxl')
 pyip = module_importer('pyinputplus', 'pyinputplus')
 
-def sendEmail(sender, recipient, **kwargs):
+def sendEmail(sender, recipient, content, **kwargs):
     ''' Send email from sender email address to recipient email address and return status
     Supported keyword arguments:
-    password, subject, content for respective purposes (each set to None by default) '''
+    password and subject : for respective purposes (each set to None by default) '''
     password = kwargs.get('password', None)
-    subject = kwargs.get('subject', None)
-    content = kwargs.get('content', None)
+    subject = kwargs.get('subject', '')
 
     if password == None:
         password = pyip.inputPassword(f'Enter password for mail {sender}: ')
-    if subject == None:
-        subject = input("Enter subject of email")
-    if content == None:
-        content = input("Enter content of email")
     
     smtpObj = smtplib.SMTP('smtp.gmail.com', 587) # potential smtplib.socket.gaierror
-    smtpObj.ehlo()      # saying hello to server
-    smtpObj.starttls()  # start encryption protocol
-    smtpObj.login(sender, password)  # potential smtplib.SMTPAuthenticationError
+    smtpObj.ehlo()                                # saying hello to server
+    smtpObj.starttls()                            # start encryption protocol
+    smtpObj.login(sender, password)               # potential smtplib.SMTPAuthenticationError
     
     status = smtpObj.sendmail(sender, recipient, f"Subject: {subject}\n{content}")
 
