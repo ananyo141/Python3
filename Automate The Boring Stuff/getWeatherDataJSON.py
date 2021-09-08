@@ -2,6 +2,8 @@
 # This program uses API from OpenWeather.org formatted as JSON data to show the weather details
 import json, sys, logging, pprint, time
 from ModuleImporter import module_importer
+from twilioText import textTo
+
 pyip = module_importer('pyinputplus', 'pyinputplus')
 requests = module_importer('requests', 'requests')
 
@@ -22,7 +24,7 @@ def printDegree(value: int or float) -> str:
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit('Usage: getWeatherDataJSON.py <city_name>, <2-letter country code>')
+        sys.exit('Usage: python getWeatherDataJSON.py <city_name>')
     # Get location from command line 
     app_id = pyip.inputPassword(prompt = 'Enter your APP ID: ', blank = True);                           logging.info(f"API KEY Entered: {app_id != ''}")
     if not app_id:
@@ -53,6 +55,17 @@ def main():
     print(f"Overall weather condition is {weather_data['weather'][0]['description']}")
     print(f"Wind: Blowing at {printDegree(weather_data['wind']['deg'])}, with speed {weather_data['wind']['speed']} meter/s")
 
+    # if weather is any one of the list
+    adverseWeathers = ['rain', 'fog', 'snow', 'haze']
+    for weather in adverseWeathers:
+        if weather in weather_data['weather'][0]['description']:
+            phoneNum = input("Enter phone number to send alert (with country code): ")  # send a text to this number
+            if not phoneNum:
+                break
+            textTo(phoneNum, f"Hey Ani today's weather is {weather}-y so "
+                    "take an umbrella or boot whatever and plan accordingly!")
+            print(f"Message sent about {weather} weather to {phoneNum}")
+            break
 
 if __name__ == '__main__':
     main()
