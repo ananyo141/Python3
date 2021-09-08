@@ -1,6 +1,6 @@
 # Unsubscribe from all the pesky emails with one click
 
-import imaplib, webbrowser
+import imaplib, webbrowser, sys
 from ModuleImporter import module_importer
 
 imaplib._MAXLINE = 10000000     # set a higher size limit for fetching email messages
@@ -11,11 +11,16 @@ pyzmail = module_importer('pyzmail', 'pyzmail36==1.0.4')
 imapclient = module_importer('imapclient', 'imapclient')
 
 def main():
-    userEmail = pyip.inputEmail(prompt = "Enter your gmail: ")                      # enter mail
+    userEmail = pyip.inputEmail(prompt = "Enter your gmail: ")                      # enter email address
     password = pyip.inputPassword(prompt = f"Enter password for '{userEmail}': ")   # enter password
     
     with imapclient.IMAPClient('imap.gmail.com', ssl = True) as imapObj:    # start connection (handles abrupt connection drop)
-        imapObj.login(userEmail, password)                                  # login with given email and password
+        try:
+            imapObj.login(userEmail, password)                              # login with given email and password
+        except imapclient.exceptions.LoginError:
+            sys.exit('\nInvalid login credentials\n' 
+                     'Tip: Ensure you have "unsecured app access" enabled in your google security settings')
+
         imapObj.select_folder('INBOX', readonly = True)                     # select the inbox folder with readonly mode (can't delete or make changes)
         allMessageUIDs = imapObj.search()                                   # get all the message unique ids
         rawMessages = imapObj.fetch(allMessageUIDs, ['BODY[]', 'FLAGS'])    # download all the messages
@@ -37,7 +42,7 @@ def main():
                     except Exception as exc:
                         print(f'Unable to open {link}, {str(exc)}')
         
-    print("Successfully unsubscribed from all newsletters")
+    print("\nSuccessfully unsubscribed from all newsletters\n")
 
 
 if __name__ == '__main__':
