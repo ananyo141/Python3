@@ -16,14 +16,13 @@ def sendEmail(sender, recipient, content, **kwargs):
     if password == None:
         password = pyip.inputPassword(f'Enter password for mail {sender}: ')
     
-    smtpObj = smtplib.SMTP('smtp.gmail.com', 587) # potential smtplib.socket.gaierror
-    smtpObj.ehlo()                                # saying hello to server
-    smtpObj.starttls()                            # start encryption protocol
-    smtpObj.login(sender, password)               # potential smtplib.SMTPAuthenticationError
+    with smtplib.SMTP('smtp.gmail.com', 587) as smtpObj: # potential smtplib.socket.gaierror
+        smtpObj.ehlo()                                   # saying hello to server
+        smtpObj.starttls()                               # start encryption protocol
+        smtpObj.login(sender, password)                  # potential smtplib.SMTPAuthenticationError
+        
+        status = smtpObj.sendmail(sender, recipient, f"Subject: {subject}\n{content}")
     
-    status = smtpObj.sendmail(sender, recipient, f"Subject: {subject}\n{content}")
-
-    smtpObj.quit()  # end the connection
     return status
 
 
