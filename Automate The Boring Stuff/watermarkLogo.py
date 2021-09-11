@@ -2,13 +2,15 @@
 # pixels (either height or width) and scale down the other dimension proportionally,
 # then add a logo to bottom right corner
 
-from tkinter import image_names
 import tkinter.filedialog, logging, sys
 from pathlib import Path
+from ModuleImporter import module_importer
+PIL = module_importer('PIL', 'Pillow')
 from PIL import Image
 
 logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(lineno)d - %(message)s',
-                    datefmt='%d/%m/%Y %I:%M:%S %p', filename = 'watermarkLogo.log', filemode = 'w')
+                    datefmt='%d/%m/%Y %I:%M:%S %p')  # filename = 'watermarkLogo.log', filemode = 'w'
+logging.disable(logging.CRITICAL)
 
 SQUARE_FIT_SIZE = 300
 
@@ -38,7 +40,7 @@ def main():
     logoImage = Image.open(logoFilePath)
     # shrink the logo image too
     logoWidth, logoHeight = calculate_resized_dim(logoImage.width, logoImage.height, SQUARE_FIT_SIZE // 4)
-    logoImage.resize((logoWidth, logoHeight))
+    logoImage = logoImage.resize((logoWidth, logoHeight));                          logging.info(f"{logoWidth = }, {logoHeight = }")
 
     directory = tkinter.filedialog.askdirectory()
     if not directory:
@@ -46,23 +48,23 @@ def main():
     directory = Path(directory);                                                    logging.info(f"{logoFilePath = }, {directory = }")
     saveDir = directory / 'WithLogo';                                               logging.info(f"{saveDir = }")
     saveDir.mkdir(exist_ok = True)
-    # TODO: Scan the directory for images of extension JPG, PNG, GIF, BMP 
+    # Scan the directory for images of extension JPG, PNG, GIF, BMP 
     for item in directory.glob('*.*'):
         if item.is_file() and item.suffix.lower() in supportedFormats:
-            if item.name == logoImage.filename:
+            if item.name == Path(logoFilePath).name:
                 continue
             image = Image.open(item);                                               logging.info(f"{item = }")
             width, height = image.size;                                             logging.info(f"{width = }, {height = }")
-            # TODO: If dimension is more than 300px, scale down the image (both preserving proportion)
+            # If dimension is more than 300px, scale down the image (both preserving proportion)
             new_width, new_height = calculate_resized_dim(width, height, SQUARE_FIT_SIZE); logging.info(f"{new_width = }, {new_height = }")
 
-            # TODO: Paste the logo image to the bottom corner
-            print("Resizing image %s" % image.filename)
-            image.resize((new_width, new_height))
+            # Paste the logo image to the bottom corner
+            print("Resizing image %s" % item.name)
+            image = image.resize((new_width, new_height))
             image.paste(logoImage, (new_width - logoWidth, new_height - logoHeight), logoImage)
-            # TODO: Save the image to separate directory
+            # Save the image to separate directory
             image.save(saveDir / item.name);                                        logging.info(f"{(saveDir / item.name) = }")
-            print("Added logo to %s" % image.filename)
+            print("Added logo to %s" % item.name)
 
 if __name__ == '__main__':
     main()
